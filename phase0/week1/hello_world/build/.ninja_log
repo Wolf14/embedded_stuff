@@ -1,0 +1,8 @@
+# ninja log v7
+3	104	7888702460231786	build.ninja	d59c6cc251a504da
+7	74	7888702010293525	CMakeFiles/stm32.elf.dir/startup.s.obj	86a64c77ce1143c9
+16	264	7888702010393625	CMakeFiles/stm32.elf.dir/src/main.c.obj	9fc10ddec2d8addb
+264	513	7888702012874184	stm32.elf	d68b8ed6db15c9c6
+3	58	7888702490958869	CMakeFiles/stm32.elf.dir/startup.s.obj	86a64c77ce1143c9
+12	114	7888702491044068	CMakeFiles/stm32.elf.dir/src/main.c.obj	9fc10ddec2d8addb
+115	289	7888702492068394	stm32.elf	d68b8ed6db15c9c6

@@ -1,0 +1,28 @@
+Subject,Start Date,End Date,Description
+Phase 0 - Week 1: STM32 Boot & Startup,2026-01-05,2026-01-11,GOAL: Understand reset-to-main flow. DELIVERABLES: Annotated startup.s, linker script notes, GPIO toggle before main(), 1–2 page boot flow writeup.
+Phase 0 - Week 2: HardFaults & Debugging,2026-01-12,2026-01-18,GOAL: Master fault debugging. DELIVERABLES: Trigger HardFaults, decode CFSR/HFSR, GDB screenshots, fault-handling notes.
+Phase 0 - Week 3: Interrupts & Latency,2026-01-19,2026-01-25,GOAL: Understand ISR behavior. DELIVERABLES: Timer ISR latency measurement, jitter analysis, ISR vs polling comparison.
+Phase 0 - Week 4: DMA & Peripherals,2026-01-26,2026-02-01,GOAL: Efficient data movement. DELIVERABLES: SPI/I2C with DMA vs polling benchmark, throughput & CPU usage notes.
+Phase 0 - Week 5: Watchdogs & Brownouts,2026-02-02,2026-02-08,GOAL: Build resilient firmware. DELIVERABLES: Independent watchdog recovery demo, brown-out reset experiment, recovery flow diagram.
+Phase 0 - Week 6: Phase 0 Capstone,2026-02-09,2026-02-15,DELIVERABLE: Bare-metal firmware using ISR + DMA + watchdog. Includes README, failure-mode analysis, and boot-time diagram.
+
+Phase 1 - Week 7: RTOS Fundamentals,2026-02-16,2026-02-22,GOAL: FreeRTOS basics. DELIVERABLES: Multiple tasks, queues, semaphores, timing diagram of task execution.
+Phase 1 - Week 8: RTOS Scheduling & Priority,2026-02-23,2026-03-01,GOAL: Scheduling mastery. DELIVERABLES: Priority inversion demo, mutex vs semaphore comparison, scheduler trace.
+Phase 1 - Week 9: RTOS CAN Pipeline,2026-03-02,2026-03-08,GOAL: Real-time data flow. DELIVERABLES: ISR-to-task CAN pipeline, latency measurement, queue depth analysis.
+Phase 1 - Week 10: RTOS Memory & Stability,2026-03-09,2026-03-15,GOAL: Memory safety. DELIVERABLES: Stack overflow detection, heap fragmentation experiment, memory map notes.
+Phase 1 - Week 11: RTOS Failure Modes,2026-03-16,2026-03-22,GOAL: Failure recovery. DELIVERABLES: Deadlock/starvation demo, watchdog + recovery task, failure tree.
+Phase 1 - Weeks 12–14: Phase 1 Capstone,2026-03-23,2026-04-12,DELIVERABLE: RTOS-based CAN processing system with latency guarantees, metrics dashboard, and design doc.
+
+Phase 2 - Week 15: Embedded Linux Basics,2026-04-13,2026-04-19,GOAL: Linux foundations. DELIVERABLES: Cross-compile toolchain, boot log analysis, filesystem layout notes.
+Phase 2 - Week 16: Linux Device Drivers (GPIO),2026-04-20,2026-04-26,GOAL: Driver fundamentals. DELIVERABLES: GPIO char driver, user-space test app, kernel logs.
+Phase 2 - Week 17: Linux Device Drivers (SPI/I2C),2026-04-27,2026-05-03,GOAL: Bus drivers. DELIVERABLES: SPI or I2C driver, DT overlay, latency measurement.
+Phase 2 - Week 18: Yocto & Build Systems,2026-05-04,2026-05-10,GOAL: Production builds. DELIVERABLES: Custom Yocto image, recipe, reproducible build notes.
+Phase 2 - Weeks 19–20: Phase 2 Capstone,2026-05-11,2026-05-24,DELIVERABLE: Embedded Linux system with custom driver, Yocto image, and performance profiling.
+
+Phase 3A - Week 21: Edge ML Fundamentals,2026-05-25,2026-05-31,GOAL: ML on devices. DELIVERABLES: TinyML model, quantization experiment, accuracy vs latency report.
+Phase 3A - Week 22: ML Runtime Integration,2026-06-01,2026-06-07,GOAL: ML + firmware. DELIVERABLES: TFLite Micro integration, inference timing, memory usage analysis.
+Phase 3A - Weeks 23–24: Phase 3A Capstone,2026-06-08,2026-06-21,DELIVERABLE: End-to-end sensor → ML → decision pipeline with real-time constraints.
+
+Phase 3B - Week 25: Systems Safety & Reliability,2026-06-22,2026-06-28,GOAL: Safety thinking. DELIVERABLES: Fault tree analysis, watchdog + redundancy design.
+Phase 3B - Week 26: Secure & Robust Systems,2026-06-29,2026-07-05,GOAL: Secure firmware. DELIVERABLES: Secure boot overview, OTA failure handling design.
+Phase 3B - Weeks 27–28: Phase 3B Capstone,2026-07-06,2026-07-19,DELIVERABLE: Production-grade embedded system design doc with safety, ML, OTA considerations.

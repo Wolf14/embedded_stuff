@@ -1,0 +1,12 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: G:/Software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gcc.exe 
+Build flags: -mcpu=cortex-m4;-mthumb;-g;-O0
+Id flags:  
+
+The output was:
+1
+g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/ld.exe: g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/nofp\libg.a(lib_a-exit.o): in function `exit':
+exit.c:(.text.exit+0x16): undefined reference to `_exit'
+collect2.exe: error: ld returned 1 exit status
+
+
