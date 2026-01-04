@@ -1,0 +1,71 @@
+F:\projects\comp_sci\embedded\phase0\week1>openocd -f board/st_nucleo_f4.cfg
+Open On-Chip Debugger 0.12.0
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+Info : The selected transport took over low-level target control. The results might differ compared to plain JTAG/SWD
+srst_only separate srst_nogate srst_open_drain connect_deassert_srst
+
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : clock speed 2000 kHz
+Info : STLINK V2J33M25 (API v2) VID:PID 0483:374B
+Info : Target voltage: 3.266357
+Info : [stm32f4x.cpu] Cortex-M4 r0p1 processor detected
+Info : [stm32f4x.cpu] target has 6 breakpoints, 4 watchpoints
+Info : starting gdb server for stm32f4x.cpu on 3333
+Info : Listening on port 3333 for gdb connections
+Info : accepting 'gdb' connection on tcp/3333
+[stm32f4x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 0x21000000 pc: 0x0800024a msp: 0x20000488
+Info : device id = 0x10006421
+Info : flash size = 512 KiB
+Info : flash size = 512 bytes
+Warn : Prefer GDB command "target extended-remote :3333" instead of "target remote :3333"
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+[stm32f4x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x080025a4 msp: 0x200004b8
+Error: jtag status contains invalid mode value - communication failure
+Polling target stm32f4x.cpu failed, trying to reexamine
+Examination failed, GDB will be halted. Polling again in 100ms
+Info : Previous state query failed, trying to reconnect
+Polling target stm32f4x.cpu failed, trying to reexamine
+Info : [stm32f4x.cpu] Cortex-M4 r0p1 processor detected
+Info : [stm32f4x.cpu] target has 6 breakpoints, 4 watchpoints
+Warn : target not halted
+Info : target stm32f4x.cpu was not halted when resume was requested
+Error: jtag status contains invalid mode value - communication failure
+Warn : target stm32f4x.cpu is not halted (gdb fileio)
+Polling target stm32f4x.cpu failed, trying to reexamine
+Examination failed, GDB will be halted. Polling again in 100ms
+Info : Previous state query failed, trying to reconnect
+Polling target stm32f4x.cpu failed, trying to reexamine
+Info : [stm32f4x.cpu] Cortex-M4 r0p1 processor detected
+Info : [stm32f4x.cpu] target has 6 breakpoints, 4 watchpoints
+Error: jtag status contains invalid mode value - communication failure
+Polling target stm32f4x.cpu failed, trying to reexamine
+Examination failed, GDB will be halted. Polling again in 100ms
+Info : Previous state query failed, trying to reconnect
+Polling target stm32f4x.cpu failed, trying to reexamine
+Info : [stm32f4x.cpu] Cortex-M4 r0p1 processor detected
+Info : [stm32f4x.cpu] target has 6 breakpoints, 4 watchpoints
+Warn : target not halted
+Info : target stm32f4x.cpu was not halted when resume was requested
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+[stm32f4x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x080025a4 msp: 0x200004b8
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+[stm32f4x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 00000000 pc: 0x08000008 msp: 0x20020000
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+[stm32f4x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 00000000 pc: 0x08000008 msp: 0x20020000
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : dropped 'gdb' connection
