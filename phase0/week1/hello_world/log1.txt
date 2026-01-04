@@ -1,4 +1,3 @@
-F:\projects\comp_sci\embedded\phase0\week1\hello_world\build>"G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-gdb.exe" stm32.elf
 G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-gdb.exe: warning: Couldn't determine a path for the index cache directory.
 GNU gdb (GNU Arm Embedded Toolchain 10.3-2021.10) 10.2.90.20210621-git
 Copyright (C) 2021 Free Software Foundation, Inc.
@@ -36,4 +35,28 @@ jtag status contains invalid mode value - communication failure
 
 Program received signal SIGINT, Interrupt.
 0x080025a4 in ?? ()
-(gdb)
+(gdb) continue
+Continuing.
+target not halted
+target stm32f4x.cpu was not halted when resume was requested
+
+Program received signal SIGINT, Interrupt.
+0x080025a4 in ?? ()
+(gdb) target remote :3333
+A program is being debugged already.  Kill it? (y or n) n
+Program not killed.
+(gdb) load
+Loading section .isr_vector, size 0x8 lma 0x8000000
+Loading section .text, size 0x58 lma 0x8000008
+Start address 0x08000008, load size 96
+Transfer rate: 120 bytes/sec, 48 bytes/write.
+(gdb) monitor reset halt
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+[stm32f4x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 00000000 pc: 0x08000008 msp: 0x20020000
+(gdb) break Reset_Handler
+Note: breakpoint 1 also set at pc 0x8000008.
+Breakpoint 2 at 0x8000008: file ../startup.s, line 16.
+(gdb) continue
+Continuing.
