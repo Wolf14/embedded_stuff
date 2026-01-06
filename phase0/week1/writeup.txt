@@ -1,0 +1,151 @@
+Setup:
+Tools used:
+    CMake
+    Ninja
+    gcc-arm-none-eabi   (using different versions at home and office, but both win build)
+        -used gdb.exe
+    openocd             (using through msys2 inside mingw64 environment)
+
+1]  
+Quickly went through schematic and pin layout
+    Created a basic project to blink onboard LED
+    TO delete build and start again. go to build repository and:
+        $rmdir /s /q CMakeFiles
+        $del CMakeCache.txt
+    To run the build:
+        $cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=../toolchain-arm-none-eabi.cmake ..
+        $ninja
+
+    To run the program on teh board:
+        target remote :3333
+        monitor reset halt
+        load
+        monitor reset halt
+        break Reset_Handler
+        continue
+
+    Shutdown sequence:
+        monitor reset run
+        detach
+        quit
+
+    
+    
+Learning:
+    1] Reset -> main()
+    ResetHandler:   tiny piece of code that runs 1st when a microcontroller resets
+                    - is the entry point of your program after a reset event.
+                ensures:
+                    - Stack pointer(SP) is set coreectly
+                    - the .data section(initialized variables) is copied from Flash to RAM
+                    - The .bss section (zero initialized variables) is cleared
+                    - The system clockand other basic configurations are initialized
+                    - Finally the main() funciton is called
+                Reset Handler executes after any reset event:
+                    Power-On Reset (POR)
+                    Manual Reset (reset button)
+                    Watchdog Reset
+                    Brown-Out Reset
+                    Software Reset
+    By default, the Vector Table is located at address 0x00000000, typically mapped to Flash. Immediately after reset, the Cortex-M core looks for one thing that is Vector Table
+    After a reset (power-on, software, or external), the Cortex-M processor begins execution at address 0x00000000, in Thread mode using the Main Stack Pointer (MSP) by default
+        -> Depending on the configuration, thread mode can operate in privileged or unprivileged mode.
+    Entry 0 (0x00000000): Initial MSP Value
+        The first entry in this table is the initial stack pointer. The core initializes the Main Stack Pointer: MSP ← *(0x00000000).
+    Entry 1 (Address 0x0000 0004): Reset Handler Address
+        Second entry of the Vector table is the reset handler address. The core loads the address of the first instruction it must execute: PC ← *(0x00000004)
+    
+    Linker always refers to physical memory addresses.
+    Possible reason for VTOR?:
+    The vector table can be placed in read-only memory or RAM. Placing it in ROM saves RAM space while locating it in RAM allows dynamic updating of vector addresses
+
+    Step by step reset sequence:
+        Reset Triggered: Cortex-M processor begins execution at address 0x00000000, in Thread mode using the Main Stack Pointer (MSP) by default. Depending on the configuration, thread mode can operate in privileged or unprivileged mode.
+        Stack Pointer Initialization: The processor reads the initial stack pointer value from address 0x00000000 and loads it into the SP (Stack Pointer) register.
+        Program Counter Initialization: the processor reads the reset vector from address 0x00000004, which contains the address of the Reset_Handler. This value is loaded into the Program Counter (PC).
+        Jump to Reset_Handler:
+        Call to SystemInit():
+            Reset_Handler first calls the SystemInit() function, which typically performs:
+            Clock configuration (e.g., PLL, XTAL, HSE/HSI setup)
+            FPU (Floating Point Unit) settings (if available)
+            Vector table base address setup (via VTOR)
+            Memory system initialization
+        Jump to __main:
+            After SystemInit(), the control is transferred to __main, a function provided by the toolchain’s runtime. This is not the same as your application’s main() function.
+            __main is responsible for:
+                Initializing the C runtime environment
+                Copying initialized data from ROM to RAM,
+                Zero-initializing the .bss section,.
+                Invoking C++ global constructors (if any).
+                Finally calling the user-defined main() function
+                Call the main function
+
+STM32 Cortex M4 specific:(from programming manual)
+    - The processor uses a full descending stack
+    - The processor implements two stacks, the main stack(MSP) and the process stack(PSP), with independent copies of the stack pointer
+    - In Thread mode, the CONTROL register controls whether the processor uses the main stack or the process stack
+    - The VTOR register is a 32-bit writeable CPU register present in all Cortex-M variants
+    - On reset, the processor loads the VTOR with the fixed vector table base address which is 0x00000000 for Cortex-M0/M0+ 
+    and 0x00000004 for Cortex-M3/M4. This maps the vector table to the start of the code memory region.
+
+
+Questions:
+- What is a Reset Event?
+    - reset event in a microcontroller forces it to stop its current operation and return to a known, initial state, like when it first gets power, by clearing registers, reinitializing peripherals, and restarting program execution from the beginning
+    - Its address is stored in the Vector Table, which resides at the start of the Flash memory
+        For ARM Cortex-M microcontrollers:
+            -> The first entry in the vector table: Initial Stack Pointer value
+            -> The second entry: Address of the Reset Handler.
+    - Reset Handler executes
+        Initialize .data and .bss sections in RAM.
+        Optionally configure the system clock and peripherals.
+        Call SystemInit() (common in CMSIS-based systems).
+        Call __libc_init_array() (for C++ constructors).
+        Finally, call main().
+    - A microcontroller reset circuit is a circuit designed to ensure that a microcontroller (microcontroller) will function properly at startup or under abnormal conditions. The main function of a reset circuit is to restore the internal state and registers of the microcontroller to a known initial state so that program execution can begin
+    - RESET CIRCUIT: The reset circuit usually consists of a resistor, capacitor and/or voltage regulator used to generate an appropriate reset pulse signal. This signal is passed to the reset pin of the microcontroller to trigger a reset operation.
+    - Reset Vector: During a reset, the microcontroller jumps to a specific reset vector address from where it starts executing the initialization routine. This vector address is usually fixed and determined by the manufacturer of the microcontroller.
+- Difference b/w Flash and RAM?
+    - Two types of RAM are commonly used in a computer system: dynamic RAM (DRAM) and static RAM (SRAM). 
+    - In addition to being the fastest option, SRAM is much more expensive than DRAM, so it is mainly used as the cache memory inside the integrated circuit that is a computer's CPU
+    - DRAM is mainly used as the primary operational memory, running the OS and applications.
+    - Less expensive still is flash memory. Flash memory is non-volatile and can hold data even without power, unlike RAM. Compared to either type of RAM, flash memory speed is significantly slower
+- What is Stack pointer?
+    - usually maintained as a LIFO data structure 
+    - The stack pointer is initialized o itialized only one time in e time in the program.
+    - stack incrments when you PULL an item OFF the stack and decrements when u PUSH an item ON the stack
+- What is a Program Counter?
+    - a special CPU register that holds the memory address of the next instruction to be executed
+- What is VTOR(Vector Table Offset Register)?
+    - crucial system control register in most ARM Cortex-M processors that specifies the memory address where the processor should look for the start of the vector table
+    - VTOR's primary function is to allow developers to relocate this table from its default memory location (typically the start of flash memory, address 0x00000000) to another location, often in SRAM (RAM). 
+- Why 0x08000000 instead of 0x00000000 in linker.ld?
+    - ARM mandates that the CPU fetches the reset vector from address 0x00000000.
+        -ARM Cortex-M specification says:
+            On reset:
+                Load MSP from address 0x00000000
+                Load PC from address 0x00000004
+            It does NOT mandate where Flash physically lives.
+    - STM32 aliases Flash at 0x08000000 to 0x00000000 at reset.
+    -Your linker script:
+        FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512K
+        SRAM  (rwx): ORIGIN = 0x20000000, LENGTH = 128K
+    This is not describing CPU reset behavior. It is describing: “Where should the linker place sections in the physical memory map of this MCU?”
+    This memory map comes from STM32’s silicon design, not ARM.
+    STM32F4 uses boot time aliasing at reset: 0x00000000 → alias of selected boot memory, So:
+        CPU reads 0x00000000, but Hardware routes that read to Flash at 0x08000000
+- Where exactly does the aliasing happen?
+    Inside STM32 silicon:
+        - AHB bus matrix
+        - Address decoder
+        - Boot configuration logic
+    Proof:
+        try:     x/8x 0x00000000 and x/8x 0x08000000    these both return the same values
+
+
+Sources:
+https://mohamedayman23.medium.com/inside-the-boot-manager-powering-up-arm-cortex-m-systems-b756f43ce0f5
+https://mohamedayman23.medium.com/what-happens-before-main-dfe1a5ce1335
+https://s-o-c.org/what-is-vector-table-offset-register-vtor-in-arm-cortex-m-series/
+STM32 M4 - Cortex Programming manual
+https://www.dmi.unict.it/santoro/teaching/lsm/slides/StartupSTM32.pdf
