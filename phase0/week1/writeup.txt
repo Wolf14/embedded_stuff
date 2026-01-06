@@ -29,10 +29,76 @@ Quickly went through schematic and pin layout
         detach
         quit
 
-    
+    Native GDB commands:(These talk to the target CPU state via the GDB remote protocol.)
+        - continue
+        - step
+        - stepi
+        - break
+        - info registers
+        - x/16x 0x08000000
+
+    monitor commands:(These talk directly to OpenOCD, not the CPU. OpenOCD-specific, Not part of GDB, Used for board-level control)
+        ->monitor reset halt
+        ->monitor halt
+        ->monitor flash erase_sector
+        ->monitor mdw 0x20000000 4
+    halt    -> immediately stops the cpu wherever it is
+    reset   -> Asserts the RESET signal ()
+            -> Cortex-M core resets:
+            -> MSP ← vector[0]
+            -> PC ← vector[1]
+            -> All core registers return to reset state
+            -> Peripherals reset (as per STM32 reset tree)
+            -> CPU starts executing immediately
+            -> Debugger stays attached but does not stop execution
+    monitor <COMMAND>
+            -> 
     
 Learning:
-    1] Reset -> main()
+    1] What is the setup process:
+        Step 1 - openocd: 
+            Loads interface config
+                ST-Link
+                SWD protocol
+            Loads target config
+                STM32F4
+                Cortex-M4
+            Initializes:
+                Debug Access Port (DAP)
+                Memory access
+                Flash driver
+                Halts or resets the core (depending on config)
+            At this point OpenOCD has direct control of the MCU, it can: Read/write memory, Halt/resume CPU, Program Flash, Read registers
+            But: It has no idea about your source code, No symbols, No main()
+        Step 2 — OpenOCD becomes a server
+            OpenOCD then opens TCP ports:
+            Port	Purpose
+            3333	GDB server
+            4444	Telnet console
+            6666	TCL interface
+            OpenOCD is now saying: “If anyone speaks GDB Remote Protocol on port 3333, I’ll translate it to hardware operations.”
+        Step 3 — What happens when you start arm-none-eabi-gdb
+        You run:
+            GDB:
+                Loads: the ELF file 
+                Reads: Symbols, Sections, Debug info
+                Knows: Where Reset_Handler is, Where main is, What variables exist
+            But: GDB has no hardware access, It cannot touch the MCU yet
+        Step 4 — "target remote :3333"
+            This is the handshake. GDB connects to OpenOCD over TCP. They speak GDB Remote Serial Protocol
+            GDB says things like: “Read register R0”, “Set breakpoint at 0x08000008”
+            OpenOCD translates that into: SWD/JTAG operations, Register reads, Flash patches
+            Now: GDB controls execution, OpenOCD controls hardware
+        Step 5: what happens when you type continue?
+            GDB: Sends continue command to OpenOCD
+            OpenOCD: Releases the CPU, Core starts executing from PC
+            If the program: Hits a breakpoint → OpenOCD halts CPU → GDB regains control | Crashes → CPU faults → OpenOCD reports halt
+        Step 6 — Why OpenOCD needs board config (st_nucleo_f4.cfg)
+        That file tells OpenOCD:, Which probe to use (ST-Link), Which transport (SWD), Which MCU (STM32F4), Which Flash driver, Clock speed, Reset behavior
+        Without it: OpenOCD doesn’t know how to talk to your board
+
+
+    2] Reset -> main()
     ResetHandler:   tiny piece of code that runs 1st when a microcontroller resets
                     - is the entry point of your program after a reset event.
                 ensures:
@@ -141,6 +207,25 @@ Questions:
         - Boot configuration logic
     Proof:
         try:     x/8x 0x00000000 and x/8x 0x08000000    these both return the same values
+-Why does "info registers" return the register values even if I havent defined them in code/linker/startup?
+    The command reads the CPU’s architectural registers directly via the debug hardware.
+    You don’t need to define them. They exist because the Cortex-M core exists.
+    They are physically implemented inside the Cortex-M4 core.
+    The ARM architecture mandates these registers:
+        Core registers (always present)
+        Register	Purpose
+        r0–r12	General-purpose
+        sp (r13)	Stack pointer
+        lr (r14)	Link register
+        pc (r15)	Program counter
+        xPSR	Program status
+        MSP / PSP	Stack pointers
+        CONTROL	Privilege / stack select
+        PRIMASK / BASEPRI	Interrupt masking
+    These exist even if flash is empty.
+
+- Why is ORIGIN of SRAM2 specified as "SRAM1 + SRAM1_SIZE - 4" in linker.ld? 
+
 
 
 Sources:
@@ -149,3 +234,5 @@ https://mohamedayman23.medium.com/what-happens-before-main-dfe1a5ce1335
 https://s-o-c.org/what-is-vector-table-offset-register-vtor-in-arm-cortex-m-series/
 STM32 M4 - Cortex Programming manual
 https://www.dmi.unict.it/santoro/teaching/lsm/slides/StartupSTM32.pdf
+https://mcyoung.xyz/2021/06/01/linker-script/       -> excellent resource for explaining linking process 
+https://lwn.net/Articles/276782/
