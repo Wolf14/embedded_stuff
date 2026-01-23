@@ -178,7 +178,7 @@ Questions:
     - Less expensive still is flash memory. Flash memory is non-volatile and can hold data even without power, unlike RAM. Compared to either type of RAM, flash memory speed is significantly slower
 - What is Stack pointer?
     - usually maintained as a LIFO data structure 
-    - The stack pointer is initialized o itialized only one time in e time in the program.
+    - The stack pointer is initialized only one time in the program.
     - stack incrments when you PULL an item OFF the stack and decrements when u PUSH an item ON the stack
 - What is a Program Counter?
     - a special CPU register that holds the memory address of the next instruction to be executed
@@ -227,6 +227,7 @@ Questions:
 - Why is ORIGIN of SRAM2 specified as "SRAM1 + SRAM1_SIZE - 4" in linker.ld? 
 
 
+- Why is ORIGIN of SRAM2 specified as "SRAM1 + SRAM1_SIZE - 4" in linker.ld? 
 
 Sources:
 https://mohamedayman23.medium.com/inside-the-boot-manager-powering-up-arm-cortex-m-systems-b756f43ce0f5

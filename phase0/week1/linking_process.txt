@@ -1,0 +1,211 @@
+The “final link” incorporates several .o files and .a files to produce an executable. It does roughly the following:
+
+1]Parse all the objects and static libraries and put their symbols into a database. Symbols are named addresses of functions and global variables.
+2]Search for all unresolved symbol references in the .o files and match it up with a symbol from the database, recursively doing this for any code in a .a referenced during this process. This forms a sort of dependency graph between sections. This step is called symbol resolution.
+3]Throw out any code that isn’t referenced by the input files by tracing the dependency graph from the entry-point symbol (e.g., _start on Linux). This step is called garbage collection.
+4]Execute the linker script to figure out how to stitch the final binary together. This includes discovering the offsets at which everything will go.
+5]Resolve relocations, “holes” in the binary that require knowing the final runtime address of the section. Relocations are instructions placed in the object file for the linker to execute.
+6]Write out the completed binary.
+
+Step 1:
+The linker reads: all .o files you gave it, all .a (static libraries)
+From each file it extracts symbols: function names, global / static global variables
+
+Each symbol is basically the value of an address stored as: name → section + offset + size + visibility
+At the lowest level (ELF), a symbol is: A name associated with a value
+The value is usually interpreted as an address, but not always tied to a section.
+
+Formally (ELF symbol table entry) looks like:
+name, value, size, binding, type, section_index
+
+Two categories of symbols (this is the key)
+🔹 A) Section-relative symbols (most symbols):
+    These are the ones which the assembler finds while going through the object files
+    They produce symbols like:
+        foo → section .text, offset 0x120
+        g   → section .bss,  offset 0x00
+    Later:
+        final address = section VMA + offset
+
+🔹 B) Absolute symbols (linker-defined symbols):
+    These are the symbols you define within the linker itself
+            my_cool_symbol = 5;
+        This produces an absolute symbol:
+            my_cool_symbol → value 5, section = ABS     -> There is:    no section, no offset, no storage
+Important rule
+
+A symbol’s value is always an address-sized integer.
+What that integer means depends on the symbol type.
+    For section symbols:    value = offset into section
+    For absolute symbols:   value = literal number
+
+So how should you refine your mental model?
+Instead of: “Each symbol is section + offset + size + visibility”
+
+Use this:
+    Each symbol has a value.
+    For most symbols, that value is section-relative.
+    For some (linker-defined), it is absolute.
+
+Every .o file has its own .text, .data, etc.
+The linker merges them into the output sections according to the linker script. The linker script tells it to concatenate them.
+Ex:
+.text:
+    startup.o:.text
+    main.o:.text
+    utils.o:.text
+    main.o:.rodata
+    utils.o:.rodata
+
+Order matters — it’s the order the linker encounters them unless overridden.
+
+Each .o file has:
+.text           .data
+.bss            .rodata
+
+The linker script says: Take ALL of those, Merge them by type, Put them at THESE addresses
+
+objdump -h <.o file>    -> tells you the different sections and attributes of each section. Ex:
+Column:	    Meaning:
+Idx         Section index
+Name        Output section name
+Size        Size of section in bytes
+VMA         Virtual Memory Address (runtime address)            -> The address CPU will use at runtime
+LMA         Load Memory Address (where loader reads from)       -> This is where the section is loaded from
+File off    Offset inside the ELF file                          -> Where the section lives inside the ELF file on disk, This has nothing to do with runtime memory.
+Algn        Required alignment                                  -> 
+
+On Linux:   VMA == LMA (almost always)
+On embedded:    .data often has different VMA and LMA
+
+Attribute Meanings:
+1] CONTENTS:   This section has actual bytes stored in the ELF file
+If CONTENTS is missing: no bytes in the file. 
+Example:
+.bss    ->  occupies memory, but contains only zeroes, so storing it in the file would be wasteful
+
+2] ALLOC: This section occupies memory at runtime.
+If ALLOC is set: the section is mapped into memory, it has a VMA
+If ALLOC is not set: linker/debug-only metadata, not loaded into memory
+
+3] LOAD: The loader copies this section from the file into memory
+Relationship:
+LOAD ⇒ CONTENTS
+ALLOC without LOAD ⇒ zero-filled
+
+If LOAD is set: loader reads bytes from ELF file and copies them to VMA
+This process is called loading and is performed by a loader program. The loader is sometimes called the “dynamic linker”, and is often the same program as the “program linker”; this is why the linker is called ld.
+
+4] READONLY: Memory is mapped read-only at runtime
+Used by: OS MMU for hardware memory protection
+
+5] CODE:
+This section contains executable instructions. CODE does not mean “function” — it means “CPU may execute this”.
+
+6] RELOC:
+This section contains relocation entries. Important: This flag appears on relocation sections, not normal sections
+
+
+Use objdump -s <file.o>     -> to see contents of section
+Trivia: if you have printf("Hello"), this string is stored in .rdata. but in printf("H"), "H" would be stored in .text itself. Similarily any of the defined datatypes like int32 int64(i.e any number), etc would also be defined in .trxt instead of .rodata
+
+LMA and VMA:
+Every section has three addresses associated with it. The simplest is the file offset: how far from the start of the file to find the section.
+
+The location counter (LC) is a conceptual tool used by the assembler during the assembly (translation) process. Its primary role is to assign sequential memory addresses to the instructions and data within a source program. It is an assembler feature and makes exactly one pass through the code.
+When declaring a new section, the VMA and LMA are both set to the value12 of the location counter, which has the extremely descriptive name "."
+This counter is automatically incremented as data is copied from the input.
+We can explicitly specify the VMA of a section by putting an expression before the colon, and the LMA by putting an expression in the AT(lma) specifier after the colon:
+SECTIONS {
+  .text 0x10008000: AT(0x40008000) {/* ... */}
+}
+
+Memory Regions and Section Allocation:
+By default, the linker will simply allocate sections starting at address 0. Ex:
+MEMORY {
+  rom (rx)   : ORIGIN = 0x8000,     LENGTH = 16K
+  ram (rw!x) : ORIGIN = 0x10000000, LENGTH = 256M
+}
+The attributes are the ones we mentioned earlier: rwxal are readonly, read/write, executable, allocated, and loadable.
+
+Fill:
+You can fill the unused portions of a section by using the FILL command, which sets the “fill pattern” from that point onward. For example, we can create four kilobytes of 0xaa using FILL and the location counter:
+SECTIONS {
+  .scream_page : {
+    FILL(0xaa)
+    . += 4K;
+  }
+}
+
+When using one fill pattern for the whole section, you can just write = fill; at the end of the section. For example,
+SECTIONS {
+  .scream_page : {
+    . += 4K;
+  } = 0xaa;
+}
+
+Linker Symbols:
+Why linker scripts allow this:  Linker-defined symbols are typically used for: 
+    boundaries, sizes, configuration constants
+
+Examples:
+_estack      = ORIGIN(SRAM) + LENGTH(SRAM);
+_flash_start = ORIGIN(FLASH);
+_data_size   = SIZEOF(.data);
+
+** C has no concept of linker-provided constants. So embedded systems adopted this convention:
+    extern char SYMBOL[];
+    #define SYMBOL_VALUE ((uintptr_t)SYMBOL) 
+to use a linker provided symbol within the program
+
+The MOST COMMON use of this mechanism is percolating information not known until link time. For example, a common idiom is
+SECTIONS {
+  .text : {
+    __text_start = .;
+    /* stuff */
+    __text_end = .;
+  }
+}
+
+This allows initialization code to find the section’s address and length; in this case, the pointer values are actually meaningful!
+-It’s common practice to lead linker symbols with two underscores, because C declares a surprisingly large class of symbols reserved for the implementation, so normal user 
+code won’t call them. These include names like __text_start, which start with two underscores, and names starting with an underscore and an uppercase letter, like _Atomic
+-A symbol definition can be wrapped in the PROVIDEO() function to make it “weak”, analogous to the “weak symbol” feature found in Clang. This means that the linker will not 
+use the definition if any input object defines it.
+
+Using Symbols and LMA's:
+-As mentioned before, it is extremely rare for the LMA and VMA to be different. The most common situation where this occurs is when you’re running on a system, like a microcontroller, 
+where memory is partitioned into two pieces: ROM and RAM. The ROM has the executable burned into it, and RAM starts out full of random garbage.
+-Most of the contents of the linked executable are read-only, so their VMA can be in ROM. However, the .data and .bss sections need to lie in RAM, because they’re writable. 
+For .bss this is easy, because it doesn’t have loadable content. For .data, though, we need to separate the VMA and LMA: the VMA must go in RAM, and the LMA in ROM.
+
+Misc Linker Script Features:
+Linker script includes a bunch of other commands that don’t fit into a specific category:
+ENTRY() sets the program entry-point, either as a symbol or a raw address. The -e flag can be used to override it. The ld docs assert that there are fallbacks if an entry-point can’t be found, but in my experience you can sometimes get errors here. ENTRY(_start) would use the _start symbol, for example15.
+INCLUDE "path/to/file.ld" is #include but for linker script.
+INPUT(foo.o) will add foo.o as a linker input, as if it was passed at the commandline. GROUP is similar, but with the semantics of --start-group.
+OUTPUT() overrides the usual a.out default output name.
+ASSERT() provides static assertions.
+EXTERN(sym) causes the linker to behave as if an undefined reference to sym existed in an input object.
+LONG() physically writes 4 bytes into the output binary at the current linker location "."(i.e the location counter) . Ex: LONG(5)
+    Ex:
+    Linker script
+        .myvars :
+        {
+            my_cool_variable = .;
+            LONG(5)
+        }
+    C code
+        extern uint32_t my_cool_variable;
+        uint32_t x = my_cool_variable;   // ✅ reads value 5
+
+
+What is CRT: (C Run Time)
+    It is simply: The code that runs before main() to make C work.
+    Why C needs a runtime at all
+        C assumes certain things are true when main() starts:
+            Stack pointer is valid
+            .data variables contain initial values
+            .bss variables are zero
+            CPU is in the right mode
+            Calling conventions work
