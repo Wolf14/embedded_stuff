@@ -22,7 +22,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: F:/projects/comp_sci/embedded/phase0/week1/hello_world/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):G:/Software/ninja/ninja.exe cmTC_37725 && [1/2] Building C object CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj
+Run Build Command(s):G:/Software/ninja/ninja.exe cmTC_83311 && [1/2] Building C object CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj
 Using built-in specs.
 COLLECT_GCC=G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-gcc.exe
 Target: arm-none-eabi
@@ -30,8 +30,8 @@ Configured with: /mnt/workspace/workspace/GCC-10-pipeline/jenkins-GCC-10-pipelin
 Thread model: single
 Supported LTO compression algorithms: zlib
 gcc version 10.3.1 20210824 (release) (GNU Arm Embedded Toolchain 10.3-2021.10) 
-COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m'
- g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/cc1.exe -quiet -v -imultilib thumb/v7e-m/nofp -iprefix g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../lib/gcc/arm-none-eabi/10.3.1/ -isysroot g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../arm-none-eabi -D__USES_INITFINI__ C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -mlibarch=armv7e-m -march=armv7e-m -auxbase-strip CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj -g -O0 -version -o C:\Users\hp\AppData\Local\Temp\ccHcSWr2.s
+COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m'
+ g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/cc1.exe -quiet -v -imultilib thumb/v7e-m/nofp -iprefix g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../lib/gcc/arm-none-eabi/10.3.1/ -isysroot g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../arm-none-eabi -D__USES_INITFINI__ C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -mlibarch=armv7e-m -march=armv7e-m -auxbase-strip CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj -g -O0 -version -o C:\Users\hp\AppData\Local\Temp\ccXnCzbc.s
 GNU C17 (GNU Arm Embedded Toolchain 10.3-2021.10) version 10.3.1 20210824 (release) (arm-none-eabi)
 	compiled by GNU C version 7.3-win32 20180312, GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
 
@@ -52,13 +52,13 @@ GNU C17 (GNU Arm Embedded Toolchain 10.3-2021.10) version 10.3.1 20210824 (relea
 
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 Compiler executable checksum: f3937ce18b4177bfd408ca565336596a
-COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m'
- g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/as.exe -v -march=armv7e-m -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj C:\Users\hp\AppData\Local\Temp\ccHcSWr2.s
+COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m'
+ g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/as.exe -v -march=armv7e-m -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj C:\Users\hp\AppData\Local\Temp\ccXnCzbc.s
 GNU assembler version 2.36.1 (arm-none-eabi) using BFD version (GNU Arm Embedded Toolchain 10.3-2021.10) 2.36.1.20210621
 COMPILER_PATH=g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/
 LIBRARY_PATH=g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m/nofp/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/nofp/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../arm-none-eabi/lib/thumb/v7e-m/nofp/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/;g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../arm-none-eabi/lib/
-COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m'
-[2/2] Linking C static library libcmTC_37725.a
+COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m'
+[2/2] Linking C static library libcmTC_83311.a
 
 
 
@@ -79,7 +79,7 @@ Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(arm-none-eabi-ld\.exe|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: F:/projects/comp_sci/embedded/phase0/week1/hello_world/build/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command(s):G:/Software/ninja/ninja.exe cmTC_37725 && [1/2] Building C object CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [Run Build Command(s):G:/Software/ninja/ninja.exe cmTC_83311 && [1/2] Building C object CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-gcc.exe]
   ignore line: [Target: arm-none-eabi]
@@ -87,8 +87,8 @@ Parsed C implicit link information from above output:
   ignore line: [Thread model: single]
   ignore line: [Supported LTO compression algorithms: zlib]
   ignore line: [gcc version 10.3.1 20210824 (release) (GNU Arm Embedded Toolchain 10.3-2021.10) ]
-  ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m']
-  ignore line: [ g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/cc1.exe -quiet -v -imultilib thumb/v7e-m/nofp -iprefix g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../lib/gcc/arm-none-eabi/10.3.1/ -isysroot g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../arm-none-eabi -D__USES_INITFINI__ C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -mlibarch=armv7e-m -march=armv7e-m -auxbase-strip CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj -g -O0 -version -o C:\Users\hp\AppData\Local\Temp\ccHcSWr2.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m']
+  ignore line: [ g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/cc1.exe -quiet -v -imultilib thumb/v7e-m/nofp -iprefix g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../lib/gcc/arm-none-eabi/10.3.1/ -isysroot g:\software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\../arm-none-eabi -D__USES_INITFINI__ C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -mlibarch=armv7e-m -march=armv7e-m -auxbase-strip CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj -g -O0 -version -o C:\Users\hp\AppData\Local\Temp\ccXnCzbc.s]
   ignore line: [GNU C17 (GNU Arm Embedded Toolchain 10.3-2021.10) version 10.3.1 20210824 (release) (arm-none-eabi)]
   ignore line: [	compiled by GNU C version 7.3-win32 20180312  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
   ignore line: []
@@ -109,8 +109,8 @@ Parsed C implicit link information from above output:
   ignore line: []
   ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
   ignore line: [Compiler executable checksum: f3937ce18b4177bfd408ca565336596a]
-  ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m']
-  ignore line: [ g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/as.exe -v -march=armv7e-m -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj C:\Users\hp\AppData\Local\Temp\ccHcSWr2.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m']
+  ignore line: [ g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/as.exe -v -march=armv7e-m -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj C:\Users\hp\AppData\Local\Temp\ccXnCzbc.s]
   ignore line: [GNU assembler version 2.36.1 (arm-none-eabi) using BFD version (GNU Arm Embedded Toolchain 10.3-2021.10) 2.36.1.20210621]
   ignore line: [COMPILER_PATH=g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/]
   ignore line: [g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/]
@@ -122,8 +122,8 @@ Parsed C implicit link information from above output:
   ignore line: [g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/]
   ignore line: [g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/]
   ignore line: [g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../arm-none-eabi/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_37725.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m']
-  ignore line: [[2/2] Linking C static library libcmTC_37725.a]
+  ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mthumb' '-g' '-O0' '-v' '-o' 'CMakeFiles/cmTC_83311.dir/CMakeCCompilerABI.c.obj' '-c' '-mfloat-abi=soft' '-mlibarch=armv7e-m' '-march=armv7e-m']
+  ignore line: [[2/2] Linking C static library libcmTC_83311.a]
   ignore line: []
   ignore line: []
   implicit libs: []
