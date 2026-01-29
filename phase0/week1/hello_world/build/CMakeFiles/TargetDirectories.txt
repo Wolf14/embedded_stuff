@@ -1,3 +1,3 @@
-C:/Cecil/my-stuff/embedded_stuff/phase0/week1/hello_world/build/CMakeFiles/stm32.elf.dir
-C:/Cecil/my-stuff/embedded_stuff/phase0/week1/hello_world/build/CMakeFiles/edit_cache.dir
-C:/Cecil/my-stuff/embedded_stuff/phase0/week1/hello_world/build/CMakeFiles/rebuild_cache.dir
+F:/projects/comp_sci/embedded/phase0/week1/hello_world/build/CMakeFiles/stm32.elf.dir
+F:/projects/comp_sci/embedded/phase0/week1/hello_world/build/CMakeFiles/edit_cache.dir
+F:/projects/comp_sci/embedded/phase0/week1/hello_world/build/CMakeFiles/rebuild_cache.dir

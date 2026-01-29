@@ -1,0 +1,7 @@
+targer remote :3333     -> to connect to the mcu via openocd
+monitor reset halt      -> triggers a hardware reset
+load                    -> loads the elf into flash as specified by the linker
+next/step               -> proceeds to the next instruction. Requires that cpu be in halted state
+info break              -> list all breakpoints
+del 3                   -> removes breakpoint numbered 3. Can be any number here
+break main.c:21         -> inserts a breakpoint at line 21

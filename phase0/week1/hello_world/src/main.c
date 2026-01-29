@@ -20,6 +20,15 @@ int main(void)
         // Try using BSRR:
         GPIOA_BSRR = (GPIOA_ODR & (1 << 5)) ? (1 << (16 + 5)) : (1 << 5);
 
-        for (volatile int i = 0; i < 100000; i++);
+        // while(1)
+        // {
+
+        // }
+        volatile int dummy = 0;
+        for (volatile int i = 0; i < 500000; i++)
+        {
+            dummy++;
+        }
+        dummy = 0;
     }
 }

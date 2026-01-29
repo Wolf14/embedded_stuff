@@ -19,7 +19,7 @@ Quickly went through schematic and pin layout
     To run the program on teh board:
         target remote :3333
         monitor reset halt
-        load
+        loadmonitor
         monitor reset halt
         break Reset_Handler
         continue
