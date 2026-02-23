@@ -1,0 +1,81 @@
+Some Assembly Basics:
+    Every instruciton in assembly lives in a section, if none is specified, the default is '.text'
+    .global means the symbol that follows can be referenced from other .o files as well.
+    .extern means, the label that follows is defined in some external .o file
+    .section .isr_vector, "a", %progbits
+        The "a" is to indicate that .isr_vector section has the ALLOC attribute, if not specified, linker doesnt do this
+        The %progbits indicate that the section has the DATA attribute
+
+    Basically unlike the other sections like .text, .data, etc. isr_vector is only defined in the startup assembly code. hence it needs to have attributes like the ones above explicitly mentioned 
+
+
+Concrete STM32 startup checklist
+    Before main():
+        ✔ Load initial SP from vector table
+        ✔ Enter Thread mode
+        ✔ Use MSP (or PSP if RTOS)
+        ✔ Zero .bss
+        ✔ Copy .data (LMA → VMA)
+        ✔ Ensure 8-byte stack alignment
+        ✔ Call SystemInit()
+        ✔ Call main()
+
+What MUST be done in assembly (and why)
+    Assembly is required for only three things:
+        Provide the vector table
+        Load the initial stack pointer
+        Jump to a C function
+        Everything else can safely be done in C.
+
+ C assumes certain things are true when main() starts:
+    Stack pointer is valid
+    .data variables contain initial values
+    .bss variables are zero
+    CPU is in the right mode:
+
+“How can we initialize variables before the runtime exists?”
+There are two very different kinds of “variables”:
+    Kind	                        Example	            Needs runtime?
+    Automatic (stack) variables	    uint32_t *src;	    ❌ No
+    Static / global variables	    static int x;	    ✔ Yes
+
+Why automatic variables are safe?
+    void runtime_init(void)
+    {
+        uint32_t *src;
+        uint32_t *dst;
+
+
+    These variables:
+        Live on the stack
+        Are created by adjusting SP
+        Do not rely on .data or .bss
+        And importantly:
+        👉 The stack already exists before C runs.
+
+The stack and CPU exist before the C runtime; the C runtime exists before your program logic.
+
+Static variables:
+    When you write this outside any function:
+        int a = 10;
+        int b;
+        These are called file-scope objects.
+            Key rule from C standard: Any variable defined at file scope has static storage duration by default.
+        A) At file scope
+            static int x = 5;
+            Means:
+            Internal linkage (not visible to other .c files)
+            Still static storage duration
+            Still goes to .data / .bss
+
+        B) Inside a function
+            void foo(void) {
+                static int y = 3;
+            }
+            Means:
+                Stored once, not on stack
+                Lifetime = entire program
+                Goes to .data or .bss
+                Even though it’s inside a function, it is not automatic.
+        
+Only "static" storage exists before main().

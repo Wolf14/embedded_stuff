@@ -1,0 +1,382 @@
+Timers:
+    Fundamental Registers:
+        Register	Meaning	                    Purpose
+        PSC	        Prescaler	            Divides clock               |
+        ARR	        Auto Reload Register	Max count value             |   PSC ARR and CNT are most important
+        CNT	        Counter	                Current value               |
+        CCR	        Capture/Compare	        Match value
+        DIER	    Interrupt Enable	    Enable events
+        SR	        Status Register	        Flags
+        CR1	        Control Register	    Start/stop
+
+    Timer Frequency:
+        Timer_freq = Timer_clock / (PSC + 1)
+
+    Timer overflow period:
+        Period = (ARR + 1) / Timer_freq
+
+    Combining:
+        Period = (PSC + 1) × (ARR + 1) / Timer_clock
+
+    Example:
+        Timer clock = 16 MHz
+        PSC = 15999
+        ARR = 999
+        
+        Then:
+            Tick freq = 16 MHz / 16000 = 1 kHz
+            Overflow = 1000 counts = 1 second
+
+        So interrupt every 1 second
+
+    
+    Timer Modes: Timers are multi-purpose peripherals. Main modes:
+        Upcounting (basic mode)
+            0 → ARR → 0 → ARR → ...
+            Overflow generates:
+                Update event
+                Interrupt (if enabled)
+
+            Used for:
+                Periodic interrupts
+                Time base
+
+        Output Compare:
+            Timer compares CNT with CCR value:
+                if CNT == CCR → event
+            Used for:
+                Precise timing events
+                Toggle pins
+                Scheduling
+
+        PWM (Pulse Width Modulation):
+            Hardware automatically generates waveform:
+                Duty = CCR / ARR
+                Used for:
+                    LED dimming
+                    Motor control
+                    Servo control
+                    Power electronics
+
+        Input Capture:
+            Timer records CNT when external signal arrives.
+            Used for:
+                Frequency measurement
+                Pulse width measurement
+                RPM sensing
+        
+        One Pulse Mode
+            Timer runs once then stops.
+            Used for:
+                Ultrasonic sensors
+                Trigger pulses
+                Precise delays
+
+    Timer Types in STM32
+        Not all timers are equal.
+
+        Basic Timers:
+            TIM6, TIM7
+            Only time base
+            No pins
+
+        General Purpose Timers:
+            TIM2–TIM5, etc.
+            PWM, capture, compare
+            Most common
+
+        Advanced Timers:
+            TIM1, TIM8
+            Motor control
+            Dead time insertion
+            Complementary outputs
+
+        Advanced timers are used in:
+            BLDC motors
+            Inverters
+            Power control
+
+    Basic Timer Mentions 8 registers:
+        CR1:
+            Important bits:
+            Bit	            Name	                Meaning
+        0   CEN	        Counter Enable	        Start/stop timer
+        1   UDIS	    Update Disable	        Block update events
+        2   URS	        Update Request Source	Control when update occurs
+        3   OPM	        One Pulse Mode	        Run once then stop
+            DIR	        Direction	            Up/down counting (not in basic timers)
+        7   ARPE	    Auto Reload Preload	        Buffer ARR
+
+            Most important bit:
+                TIMx->CR1 |= 1;   // CEN = 1 → start timer
+        
+        CR2:
+            Used for:
+                Master mode (timer synchronization)
+                Trigger outputs
+                For basic timers, usually not needed initially.
+                You can ignore CR2 until you study timer synchronization.
+
+        DIER:
+            Controls which events generate interrupts.
+            Important bit:
+                Bit	        Name                            Meaning
+                UIE	    Update Interrupt Enable	    Overflow interrupt enable
+        SR:
+            Hardware sets flags here.
+            Important bit:
+            Bit	            Name	            Meaning
+            UIF	    Update Interrupt Flag	    Overflow occurred
+            
+            ISR must clear this:
+                TIMx->SR &= ~1;     (Bit 0)
+            If you don’t clear → interrupt keeps firing.
+        
+        EGR:
+            Software can force events manually.
+            This bit can be set by software, it is automatically cleared by hardware.
+                0: No action.
+                1: Re-initializes the timer counter and generates an update of the registers. Note that the
+                prescaler counter is cleared too (but the prescaler ratio is not affected).
+
+            Bit	        Name	                    Meaning
+            UG	        Update Generation	    Force update event
+
+            Why useful?
+                Because PSC and ARR often load only after an update event.
+                So after configuring:
+                    TIMx->PSC = 15999;
+                    TIMx->ARR = 999;
+                    TIMx->EGR |= 1;   // load immediately
+
+        CNT：
+            CNT — Counter Register
+            Current timer value.
+            Continuously changes while timer runs.
+
+            Example:
+            uint32_t t = TIMx->CNT;
+
+            Used for:
+                Measuring time
+                Input capture
+                Polling delays
+        PSC：
+            Divides clock frequency.
+            Formula：
+                Timer tick = Timer_clock / (PSC + 1)
+        ARR：
+            Maximum counter value before overflow.
+            When:
+            CNT == ARR
+
+    The Hidden Sequence (Very Important)
+        Correct initialization order:
+            TIMx->PSC = prescaler;
+            TIMx->ARR = period;
+            TIMx->EGR |= 1;     // force update (load registers)
+            TIMx->DIER |= 1;    // enable interrupt
+            TIMx->CR1 |= 1;     // start timer
+
+        Without EGR → first period may be wrong.
+
+    Update Event in Timers:
+        There is a general internal signal called:
+            Update Event (UEV)
+
+        "An update event happens when the timer state must be refreshed."
+
+        Typical causes:
+            Counter overflow (CNT → ARR → 0)
+            Software request (EGR register)
+            Writing PSC
+            Writing ARR (when preload enabled)
+            Reinitialization
+            Trigger input (in some modes)
+
+        Sequence when an upadte event occurs:
+            Reload PSC
+            Reload ARR (if preload)
+            Reset counter (depending mode)
+            Set UIF flag
+            Trigger interrupt (if enabled and URS allows)
+
+        Few Bits explaiend in Detail:
+            CR1 Bit: URS (Update Request Source)
+            URS decides what can generate an update interrupt.
+
+            URS = 0 (default)
+            Update interrupt can come from:
+                Counter overflow
+                Software (EGR)
+                Writing registers
+                Trigger events
+            URS = 1
+                Only counter overflow/underflow generates update interrupt.
+                Software-generated updates will NOT trigger interrupt.
+
+                Why useful?
+                You may want to:
+                Reload registers without firing interrupt.
+                Very important for clean configuration.
+
+            CR1 Bit: OPM (One Pulse Mode)
+                One Pulse Mode = run once and stop.
+                OPM = 0
+                Timer runs continuously.
+                OPM = 1
+                Timer stops automatically after next update event.
+
+                Flow:
+                Start timer
+                ↓
+                Counts to ARR
+                ↓
+                Update event occurs
+                ↓
+                CEN bit cleared automatically
+                ↓
+                Timer stops
+
+                Used for:
+                    Ultrasonic trigger pulses
+                    Precise delays
+                    Single PWM burst
+
+            CR1 Bit: ARPE (Auto-Reload Preload Enable)
+                ARR can be:
+                    Direct (immediate update)
+                    Buffered (shadow register)
+
+                ARPE = 0
+                    Writing ARR changes period immediately.
+
+                ARPE = 1
+                    ARR goes into shadow register.
+                    Real ARR updates only at next update event.
+
+                Why needed?
+                    To avoid glitches during PWM or timing changes.
+
+                Without preload:
+                    Change ARR mid-cycle → timing glitch
+
+                With preload:
+                    Change ARR → applied cleanly at next cycle
+                    Professional designs almost always enable ARPE.    
+
+        EGR: Event Generation Register
+            It lets software pretend that a hardware event occurred.
+
+            Most important bit:
+                UG = Update Generation
+
+            When you write:
+                TIMx->EGR |= TIM_EGR_UG;
+                Hardware behaves as if an update event happened.
+
+            Meaning:
+                Reload PSC
+                Reload ARR (if preload)
+                Reset counter (depending mode)
+                Set UIF flag
+                Trigger interrupt (if enabled and URS allows)
+                This is why people say:
+                “Force update manually.”
+                You are manually triggering the same internal signal hardware would produce.
+
+            Why Forcing Update Is Needed (Real Reason)
+                PSC and ARR are often buffered.
+
+                If you configure timer:
+                TIM->PSC = 15999;
+                TIM->ARR = 999;
+
+                The new values might not take effect until first overflow.
+
+                So we force update:
+                    TIM->EGR |= TIM_EGR_UG;
+                Now registers load immediately.
+
+        DIER:
+            DIER register in STM32 timers stands for:
+            DMA / Interrupt Enable Register
+            It controls whether timer events generate interrupts or DMA requests.
+
+            DIER decides which of those events should notify the CPU or DMA controller.
+            Timer events happen regardless of DIER.
+
+            DIER only controls:
+            ✅ Interrupt generation
+            ✅ DMA request generation
+
+            Not the event itself.
+
+            Most Important Bit — UIE
+                UIE (Update Interrupt Enable) — Bit 0
+                This is the one you use most often.
+                When enabled:
+                    Counter overflow → sets UIF flag in SR
+                    NVIC interrupt is triggered
+
+                Example:
+                    TIMx->DIER |= (1 << 0);   // Enable update interrupt
+                    📊 Common DIER Bits
+
+                Typical layout (varies slightly by timer type):
+
+                Bit	    Name	                Meaning
+                0	    UIE	            Update interrupt enable (overflow event)
+                1	    CC1IE	        Capture/Compare channel 1 interrupt
+                2	    CC2IE	        Capture/Compare channel 2 interrupt
+                3	    CC3IE	        Capture/Compare channel 3 interrupt
+                4	    CC4IE	        Capture/Compare channel 4 interrupt
+                6	    TIE	            Trigger interrupt enable
+                7	    BIE	            Break interrupt enable (advanced timers)
+                8	    UDE	            Update DMA request enable
+                9–12    CCxDE	        Capture/Compare DMA enables
+
+
+            Interrupt generation path:
+                Timer Event Occurs
+                        ↓
+                Status Register Flag Set (SR)
+                        ↓
+                DIER bit checked
+                        ↓
+                If enabled → NVIC interrupt request
+
+            So DIER is like a gate.
+
+
+    Events other than Overflow:
+        1. Update Event (UEV)
+            Counter overflow / software / reload
+
+        2. Capture Compare Event (CCx)
+            CNT == CCRx
+
+        Used for:
+        PWM
+        Output compare
+        Input capture
+
+        3. Trigger Event (TRGO)
+            Used for timer synchronization or DAC triggering.
+
+        4. Break Event (Advanced timers)
+            Emergency shutdown for motor control.
+
+        5. Commutation Event
+            Motor phase switching.
+
+        Basic timers (TIM6/TIM7) mainly have only:
+            Update event
+
+        General timers have many more.
+
+    By "Reload Register", what is meant is:
+        To load the value in the shadow register(buffer) for ARR, PSC, etc if they exist.
+        For ARR, this can be controlled using the ARPE flag, FOR PSC, almost always buffered
+        Thus best to use, EGR after setting new values to ensure new values are laoded.
+

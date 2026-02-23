@@ -7,7 +7,7 @@
 
 _estack = 0x20020000   /* 128 KB SRAM top */
 
-.section .isr_vector,"a",%progbits
+.section .isr_vector
 .word _estack
 .word Reset_Handler
 

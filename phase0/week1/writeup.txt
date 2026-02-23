@@ -16,10 +16,15 @@ Quickly went through schematic and pin layout
         $cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=../toolchain-arm-none-eabi.cmake ..
         $ninja
 
+    
+
     To run the program on teh board:
+    ->  "G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-gdb.exe" stm32.elf
+    ->  openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+
         target remote :3333
         monitor reset halt
-        loadmonitor
+        load
         monitor reset halt
         break Reset_Handler
         continue
@@ -102,7 +107,7 @@ Learning:
     ResetHandler:   tiny piece of code that runs 1st when a microcontroller resets
                     - is the entry point of your program after a reset event.
                 ensures:
-                    - Stack pointer(SP) is set coreectly
+                    - Stack pointer(SP) is set correctly
                     - the .data section(initialized variables) is copied from Flash to RAM
                     - The .bss section (zero initialized variables) is cleared
                     - The system clockand other basic configurations are initialized
@@ -167,14 +172,51 @@ GPIO PIN Configuration:
         These bits are written by software to configure the output type of the I/O port.
             0: Output push-pull (reset state)
             1: Output open-drain
+
+        Push Pull:
+            Push-pull output uses a pair of transistors to actively drive the pin both high and low. When output high-> Upper transistor pulls output towards VCC actively
+             On a low output the lower transistor pulls the output low actively while the high side blocks.
+            Push/Pull is faster as both paths to HIGH and LOW are low Impedance and is normally what you go for by default
+        Open-Drain:
+            uses a single N-MOS that pulls the line to ground when active; when inactive the output is left floating
+            Open-drain depends on a pullup resistor to provide the high state while the low state is actively created by a transistor. 
+            So the pullup network has relatively high impedance to VDD and very low impedance to GND because when the transistor fully turns on, it is effectively a short to GND.
+            Impedance in a graphical sense is how fast teh voltage level changes to the setpoint(HIGH or LOW, higher impedance implies slower transition, so Open Drain reaches Ground Voltage very fast,(higher slope, but vice versa is slow))
+            When the MOSFET is HIGH, the Impedance to Ground is LOW pulling it to low adn allowing higher currents to flow. When the MOSFET Gate is Open, the impedance is higher leaving the state of the drain as floating.
+            A pull up resistor is required to set the Drain state to High in the High impedance state of the MOSFET
+            -These tend to be used when more than 1 device is connected on a bus like I2C
+
+
     - GPIOx_OSPEEDR
-        These bits are written by software to configure the I/O output speed.
+        These bits are written by software to configure the I/O speed.
             00: Low speed
             01: Medium speed
             10: Fast speed
             11: High speed
     - GPIOx_PUPDR
         These bits are written by software to configure the I/O pull-up or pull-down
+        PUPDR controls internal resistors that weakly pull a GPIO pin to HIGH or LOW when nothing else is driving it.
+            Yes → it is mainly relevant for input pins
+            It prevents the pin from floating, It does not drive the pin like an output
+            A GPIO input pin is high-impedance.
+            That means:
+                It does not force 0 or 1
+                If nothing is connected → the voltage is undefined
+                The pin can randomly read 0 or 1 due to noise
+            This is called a floating input.
+            Inside the STM32, each pin has two weak resistors connected to it:
+                                  3.3V
+                                    |
+                                 [ Pull-up ]
+                                    |
+                                   PIN
+                                    |
+                                 [ Pull-down ]
+                                    |
+                                   GND
+            Very important to set PUPDR when using in INPUT Mode
+            If pin is output: Output driver forces voltage, Pull-up/down has little effect
+            
             00: No pull-up, pull-down
             01: Pull-up
             10: Pull-down
@@ -220,6 +262,37 @@ GPIO PIN Configuration:
         Each pin has 4 bits. hus 8 * 4 = 32 bits. Hence 2 registers exist
     - GPIOx_AFRH
         Controls Alternate functionality of pins 8-15
+
+USER BUTTON PC13:
+User button on Nucleo F446RE, Button B1 is connected to PC13 (GPIO Port C, pin 13)
+Connected like:     +3.3V ---[Button]--- PC13 --- GND (via internal pull-up)
+Electrical behavior:
+    Not pressed: PC13 is high (logic 1)
+    Pressed: PC13 is pulled low (logic 0)
+
+Optionally enable pull-up (in PUPDR register) to ensure stable high when button is unpressed:
+Why PC13 needs pull-up specifically? 
+Your button wiring:    PC13 ---- BUTTON ---- GND
+Pressed → forced LOW, Released → nothing drives it
+So you must pull it HIGH when released → pull-up.
+
+IMPORTANT: A button must connect the pin to the opposite rail of the pull resistor when pressed.
+Case 1: Default-> HIGH
+                3.3V
+                 |
+                [ Pull-up ]
+                 |
+                 PIN ---- BUTTON ---- GND
+
+Case 2: Default -> LOW
+                GND
+                 |
+                [ Pull-down ]
+                 |
+                 PIN ---- BUTTON ---- 3.3V
+
+On the Nucleo F446RE: There is an external pull-up resistor on PC13
+
 
 Questions:
 - What is a Reset Event?
@@ -312,3 +385,4 @@ STM32 M4 - Cortex Programming manual
 https://www.dmi.unict.it/santoro/teaching/lsm/slides/StartupSTM32.pdf
 https://mcyoung.xyz/2021/06/01/linker-script/       -> excellent resource for explaining linking process 
 https://lwn.net/Articles/276782/
+https://electronics.stackexchange.com/questions/620150/difference-between-open-drain-and-push-pull-modes

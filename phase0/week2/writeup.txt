@@ -1,0 +1,1211 @@
+So here I learned that the system clock for each port (A,B,C,...H)needs to be initialized before a pin in that port may be used. Happened to me while trying to initialize the pin for the User Button.
+
+Fault handling:
+Whenever the MCU runs into a Fault. 8 Registers(Exception Stack Frame) are loaded onto the stack.
+Top of stack ->         R0 
+                        R1 
+                        R2 
+                        R3 
+                        R12 
+                        LR 
+                        PC 
+                        xPSR
+            <previous data on stack>
+
+So these 8 registers store the state of the MCU before proceeding to Fault Handler execution so that once the handler instructions re executed, program execution can resume where the fault occured.
+Note: the location of <previous data on stack> is not the instruction stored in PC(program Counter) before the fault occured. 
+The PC stored on the stack is not “where the stack was”; it is a copy of the instruction address taken from the CPU register at the moment of the fault.
+While executing the erroneuous instruction, PC is not pointing to stack on SRAM, it is pointing to the instruciton stored in FLASH(.text section).
+
+The stack is only for:
+    Saving registers
+    Local variables
+    Function return addresses
+    Exception frames
+It is data memory, not instruction memory.
+When you call a function:
+BL myFunction
+    CPU stores return address in LR register.
+    Sometimes LR gets pushed onto stack.
+    So stack may contain return addresses.
+    But execution still uses PC register.
+
+
+During exception, CPU changes PC to:
+    PC = HardFault_Handler address
+So the original PC would be lost unless saved. That’s why hardware stores it.
+
+Also, the Fault handler generally has an assembly wrapper because:
+    If HardFault_Handler is written in pure C, the compiler adds:
+        Function prologue, Example (conceptual):
+            push {r4, r5, r6, lr}
+            sub sp, #16
+
+Why? Because C functions must preserve registers and create stack space.
+So the stack now looks like:
+    compiler pushed registers
+    -------------------------
+    hardware exception frame
+    -------------------------
+    previous stack data
+
+Your original fault frame is now buried deeper.
+The compiler has already modified SP.
+
+So you don’t know:
+    Which stack pointer was active (MSP vs PSP)
+    Exact location of exception frame
+    Whether registers were changed before you read them
+    Debugging becomes unreliable.
+
+Another critical reason: MSP vs PSP
+    Cortex-M can use two stacks:
+    MSP → main stack (handlers)
+    PSP → thread stack (RTOS tasks)
+    Only assembly can reliably check LR bit to know which was active.
+    C alone cannot do this safely.
+
+When a fault happens, the CPU:
+    Automatically pushes registers onto the stack
+    Chooses MSP or PSP
+    Jumps to the HardFault handler
+    But C does NOT know which stack pointer was used.
+    Only assembly can read that.
+    So we write:
+        Assembly wrapper → figures out stack pointer → calls C function
+
+    If when a fault was triggered, in the assembly wrapper you did: 
+        bl HardFault_Handler_C
+        bl Reset_Handler
+        /* If C returns, loop forever */
+        b .
+
+        This is dangerous as each call using bl adds a "lr" register value to the stack.
+        Thus a buch of Faults triggered would lead the stack growing as each fault is called within the previous fault by the main function being called within the runtime_init function which is called by the Reset_Handler.
+
+    Thus what is instead done is:
+        log_fault();
+        NVIC_SystemReset();
+
+
+System Control Block(SCB):
+Documented in ARM Cortex-M4 programming manual. NVIC, SCB, SysTick are part of the CPU core — not STM32
+The base address of the SCB register block is 0xE000 ED00.
+    - Application Interrupt and Reset Control Register(AIRCR):
+        It controls:
+            System reset
+            Interrupt priority grouping
+            Endianness
+
+            Bits 31:16 VECTKEYSTAT/ VECTKEY Register key
+                Reads as 0xFA05
+                On writes, write 0x5FA to VECTKEY, otherwise the write is ignored.
+            Bit 15 ENDIANESS Data endianness bit
+                Reads as 0.
+                0: Little-endian
+            Bits 14:11 Reserved, must be kept cleared
+            Bits 10:8 PRIGROUP: Interrupt priority grouping field
+                This field determines the split of group priority from subpriority, see Binary point on page 228.
+            Bits 7:3 Reserved, must be kept cleared
+            Bit 2 SYSRESETREQ System reset request
+                This is intended to force a large system reset of all major components except for debug.
+                This bit reads as 0.
+                    0: No system reset request
+                    1: Asserts a signal to the outer system that requests a reset.
+            Bit 1 VECTCLRACTIVE
+                Reserved for Debug use. This bit reads as 0. When writing to the register you must write 0 to
+                this bit, otherwise behavior is unpredictable.
+            Bit 0 VECTRESET
+                Reserved for Debug use. This bit reads as 0. When writing to the register you must write 0 to
+                this bit, otherwise behavior is unpredictable.
+
+        This is a protection mechanism.
+
+    ARM requires you to write a magic key before modifying the register. So:
+        #define AIRCR_VECTKEY (0x5FA << 16)    
+
+    Bit 2 — SYSRESETREQ
+        Write 1 → Request system reset
+
+    Write the magic key + set reset bit → CPU triggers reset
+        Hardware immediately resets MCU.
+            SCB_AIRCR = AIRCR_VECTKEY | AIRCR_SYSRESETREQ;
+    
+    ARM explicitly recommends:
+        Always write AIRCR using a full word write with VECTKEY.
+        Never read-modify-write.
+        SCB_AIRCR = AIRCR_VECTKEY | 
+                    (SCB_AIRCR & (7 << 8)) |    //preserve PRIGROUP if needed
+                    AIRCR_SYSRESETREQ
+
+        |= PERFORMS A   ->  Read - Modify - Write
+        The above format is done over SCB_AAIRCR |= ... because:
+            Because AIRCR read returns VECTKEYSTAT, not VECTKEY, using |= cannot guarantee the required key value, so the write may be ignored.
+            VECTKEYSTAT = 0xFA05
+
+General Embedded Rule, Never use |= when:
+    Register contains write key fields
+    Register contains write-one-to-clear bits
+    Register read value differs from write encoding
+    AIRCR checks all three boxes.
+
+When the Assembly Wrapper for fault handling is calling the C implementaion of fault handling, how is teh argument being passed to the C function?:
+On Cortex-M (ARM EABI): Function arguments are passed in registers:
+Argument number	    Where it goes
+1st	                    R0
+2nd	                    R1
+3rd	                    R2
+4th	                    R3
+5th+                   	Stack
+
+So if you call: 
+    HardFault_Handler_C(ptr);
+
+Compiler generates:
+    mov r0, ptr
+    bl  HardFault_Handler_C
+
+Typical wrapper:
+    HardFault_Handler:
+        tst lr, #4
+        ite eq
+        mrseq r0, msp     /* r0 = MSP */
+        mrsne r0, psp     /* r0 = PSP */
+
+        bl HardFault_Handler_C
+
+    Key line:
+        mrseq r0, msp
+    This loads stack pointer into R0.
+
+-> Interview Gold Statement
+    If asked: How does HardFault C handler receive the stack frame?
+    Answer: The assembly wrapper loads the active stack pointer (MSP/PSP) into R0 according to the ARM AAPCS calling convention before branching to the C handler.
+
+Thus we see 1st 4 arguments go to Registers R0 to R3, The remaining go on the stack.
+
+-> Interview Gold Answer
+If asked:   How many arguments can an ARM Cortex-M function take?
+Answer: The first four arguments are passed in registers R0–R3 according to AAPCS, and additional arguments are passed on the stack, so there is no strict limit besides available memory.
+
+Triggering a HardFault:
+    monitor reset halt
+    load
+    break HardFault_Handler
+    continue
+
+Ideally this should lead to hitting the breakpoint, But without defining HardFault_Handler as a function, it just gets stuck at the step:
+    (gdb) si
+    halted: PC: 0x08000016
+    14          tst lr, #4
+    (gdb) si
+    halted: PC: 0x08000016
+    14          tst lr, #4
+
+But this doesnt seem to be a problem for Reset_Handler function defined in assembly
+GPT says taht there can be multiple causes for this:
+    There are multiple “safety nets” helping Reset_Handler that HardFault_Handler does not have:
+        ENTRY(Reset_Handler)
+            This often causes the linker to treat the symbol as a function-like entry point internally.
+        When starting execution:
+                Debug probe loads PC manually
+                Probe forces Thumb state bit
+            So even if the vector entry were slightly wrong, Reset might still appear fine.
+            HardFault entry is pure hardware, no debugger correction.
+    Another way to fix is to add the ".thumb_func" directive before it:
+        .thumb_func
+        HardFault_Handler:
+
+Professional best practice
+    Always declare exported assembly functions like this:
+        .global HardFault_Handler
+        .type HardFault_Handler, %function
+        HardFault_Handler:
+
+
+
+_____________________________
+
+Short Note on ST Link Debugger Chip:
+USB cable
+   │
+   ▼
+ST-LINK chip
+   ├── Debug interface (SWD/JTAG)  ← flashing + GDB
+   ├── Virtual COM Port (UART)     ← printf / logs
+   └── Mass storage (sometimes)    ← drag-and-drop flashing
+
+   Thus ST-LINK chip exposes 3 USB interfaces to your PC. So even though it’s one cable, internally there are separate logical connections.
+   When you:
+        Flash firmware
+        Use GDB
+        Set breakpoints
+        Read memory
+        Single-step instructions
+    The path is: PC → ST-LINK USB driver → SWD protocol → STM32 core
+
+    Note: The peripheral device USART2 is connected to ST-Link via the Virtual COM port interface. This is seen in the schematics as well
+
+
+
+Buses and Clocks:(A subset of devices on each Bus:)
+CPU Core
+   │
+   ├── AHB (high speed highway)
+   │       ├── SRAM
+   │       ├── FLASH
+   │       ├── DMA
+   │       └── GPIO
+   │
+   ├── APB1 (peripheral highway)
+   │       ├── USART2
+   │       ├── TIM2
+   │       └── I2C
+   │
+   └── APB2 (faster peripheral highway)
+           ├── USART1
+           ├── SPI1
+           └── TIM1
+
+Thus for each peripheral on a bus, a bit needs to be set to enable the clock on that peripheral device
+Peripherals are OFF by default. So we always:
+    Enable peripheral clock
+    Configure registers
+    Enable peripheral
+
+Understanding the UART Peripheral:
+    Just another peripheral device. Each USART device has its own set of registers as in the case of the GPIO Ports(A,B,...)
+    Also, the UART peripheral device communicates externally by means of the GPIO pins. The mapped GPIO pin thus needs to be configured for Alternate Functionality(AF)
+    Thus the clock needs to be enabled for both buses: 1] APB connecting the UART peripheral device and 2] AHB connecting the GPIO port to the clock
+    This is true even for USART2, despite it being connected to the Virtual COM port on ST-Link as seen in the schematics thus not needing any external wiring
+
+    -> USART does NOT directly own pins. Pins belong to GPIO block. USART connects internally through a multiplexer.
+        Thus we need to configure the GPIO pins as well before using USART
+
+    Minimum Setup for UART communication:
+        Step 1 — Enable clocks      (GPIO + USART)
+            RCC_AHB1ENR → GPIO
+            RCC_APB1ENR → USART2
+
+        Step 2 — Configure GPIO, For TX and RX pins:
+            Mode = Alternate function
+            Select AF number (AF7 for USART)
+            (Optional) speed / pull-up
+
+        Step 3 — Configure baud rate
+            Register: USART_BRR
+            Without this → wrong speed → garbage output.
+
+        Step 4 — Configure frame format (usually default OK)
+            Registers:
+                USART_CR1
+                USART_CR2
+                USART_CR3
+            Typical defaults:
+                Setting	        Default
+                8 data bits	        yes
+                1 stop bit	        yes
+                No parity	        yes
+                No flow control	    yes
+            So beginners usually only set CR1.
+
+        Step 5 — Enable USART
+            CR1 UE bit
+            CR1 TE bit
+            CR1 RE bit
+
+
+Also how does the Peripheral (Ex: USART2) differentiate between received msgs adn transmistted msgs?
+    - IN the end we r only using 1 register USART2->DR to read and write data so how?
+        - Basically the hardware layout understands if it was a read operation or a write that was done:
+        Inside a UART Peripheral (Conceptual)
+
+        There are two main blocks:
+                        ┌──────────────┐
+        CPU WRITE ───►  │ Transmit Reg  │ ─► Shift Reg ─► TX Pin
+                        └──────────────┘
+
+        RX Pin ─► Shift Reg ─► Receive Reg ─► CPU READ
+
+So:
+    Transmit path starts from CPU → goes outward to pin
+    Receive path starts from pin → goes inward to CPU
+
+They never get confused because the direction of data flow is physically different.
+
+🔁 Transmission (TX)
+Steps:
+    CPU writes to TDR register
+    Hardware moves data into transmit shift register
+    Bits are clocked out on TX line
+    TXE flag set when ready for next byte
+
+The peripheral knows it is transmitting because:
+    Data came from CPU write bus into transmit register.
+        📥 Reception (RX)
+
+Steps:
+    Hardware monitors RX pin continuously
+    Detects start bit
+    Samples incoming bits using baud clock
+    Assembles byte in receive shift register
+    Moves byte into RDR register
+    Sets RXNE flag
+
+The peripheral knows it is receiving because:
+    Data came from external pin sampling logic.
+
+Full-duplex capability
+
+Because TX and RX are separate, UART can do both simultaneously:
+    Sending byte A while receiving byte B
+        This is called full duplex.
+
+The CPU bus transaction itself contains a READ or WRITE signal, and the peripheral uses that to decide.
+What actually happens on the bus
+
+When the CPU executes:
+    char c = uart->DR;
+    
+    the processor generates a bus READ transaction:
+        Address = DR address        ->  Direction = READ
+
+When the CPU executes:
+    uart->DR = c;
+    
+    the processor generates a bus WRITE transaction:
+
+--------------------------------------------------------------------
+
+
+Cortex-M4 processor is built on a high-performance processor core, with a 3-stage pipeline Harvard architecture.
+Cortex-M4 processor closely integrates a configurable Nested Vectored Interrupt Controller (NVIC), to deliver industry-leading interrupt performance. The NVIC includes a
+Non Maskable Interrupt (NMI) that can provide up to 256 interrupt priority levels. The tight integration of the processor core and NVIC provides fast execution of Interrupt Service
+Routines (ISRs), dramatically reducing the interrupt latency
+
+Interrupt handlers do not require wrapping in assembler code, removing any code
+overhead from the ISRs. A tail-chain optimization also significantly reduces the overhead when
+switching from one ISR to another. Thus you dont need to write an assembly wrapper to push register states to the stack.
+
+On many older architectures (and even some modern ones), when an interrupt occurs you must:
+    Save registers manually (push to stack)
+    Call your C function
+    Restore registers
+    Return from interrupt with a special instruction
+So you often write a small assembly wrapper around your ISR.
+
+Example (typical non-Cortex MCU concept):
+    ISR_wrapper:
+        push r0-r7
+        call my_c_handler
+        pop r0-r7
+        reti
+
+Cortex-M does this automatically in hardware
+
+When an interrupt fires, the CPU automatically:
+    Pushes registers to stack:
+        R0–R3
+        R12
+        LR
+        PC
+        xPSR
+    Switches to handler mode
+    Jumps directly to your C function
+    So you can just write:
+        void EXTI0_IRQHandler(void)
+        {
+            // your code
+        }
+
+“Tail-chain optimization”
+This is a very cool Cortex-M feature.
+    Normally interrupt flow is:
+    → Interrupt A occurs
+    → Save context
+    → Run ISR A
+    → Restore context
+    → Return to main code
+
+    Then interrupt B occurs
+    → Save context again
+    → Run ISR B
+    → Restore again
+
+That’s expensive.
+✅ Cortex-M tail chaining does this instead:
+    If another interrupt is pending when one ISR finishes, the CPU:
+    → ISR A finishes
+    → DO NOT restore context
+    → Immediately jump to ISR B
+    So it skips:
+    → Pop registers
+    → Push registers again
+    This saves dozens of clock cycles.
+
+    Hence:
+    “significantly reduces the overhead when switching from one ISR to another”
+
+3️⃣ Why this matters (real impact)
+On Cortex-M:
+    Interrupt latency ≈ 12 cycles (very fast)
+    With tail chaining:
+    ISR-to-ISR switch ≈ 6 cycles
+    That’s extremely efficient for:
+    RTOS context switching
+    High-frequency peripherals
+    Motor control
+    Real-time audio
+    Embedded control loops
+
+Now ISR B becomes pending before ISR A exits
+    At the end of ISR A, the CPU normally would:
+        Pop registers (restore thread state)
+        Return to thread mode
+
+But the NVIC sees:
+    “Another interrupt is pending (ISR B)”
+    So instead the CPU does tail-chaining:
+        DO NOT pop registers
+        DO NOT push again
+        Jump directly to ISR B
+
+Why is this safe?
+    Because:
+    ✅ The original thread state is already stored on the stack
+    ✅ ISR B should return to the same thread state anyway
+
+
+Summary:
+    Tail-chaining is basically:
+        Reusing the same stacked context for multiple ISRs.
+_________________________________________________
+Ran into some booting issue, due to which I am unable to halt CPU. 
+First time the STM32 is powered up (and reset line is released), an internal bootcode (bootloader) will kick in first and check if the flash is blank. If the flash is blank, the bootloader will enable and listen for some peripherals (some UART/I2C/SPI/USB) to communicate with the external world as a mean to download and flashing the device.
+If the flash is not blank, the user code in the flash will start.
+If boot0 is tied high, the bootloader will assume the flash is blank.
+Another way to program the flash of the microcontroller is by debugger (ST Link) through SWD or JTAG
+On STM8 MCU due to low pincount, the bootloader does not have a boot0 pin and instead the bootloader will be listening for communication for a single second after reset line is released.
+
+In this state I was unable to write to Flash or erase existing flash either.
+I tried:
+    openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "reset_config connect_assert_srst"
+        This let me connect using openocd again, but failed to halt cpu
+    monitor stm32f4x mass_erase 0
+        This comand also failed within openocd in the lockup state
+    
+What worked:    Set boot0 pin to HIGH
+    -This tells the MCU to boot from either RAM or SRAM, depending on the Boot1 pin value.
+    So buggy code is not run anymore during startup adn we are able to successfully erase FLASH
+    -To do this connect Boot0 pin 7 to VDD pin 5 using one of the extra jumpers(connecting CN12 to GND or CN11 to GND) on the back of the board
+        -It is safe to connect without a pullup resistor as The schematic already shows an external 10 Ohm resistor connecting boot pin to GND.
+    
+    In my code this lockup state was caused because of the line:
+        GPIOA->MODER |= ~(3 << (pin * 2)); instead of GPIOA->MODER &= ~(3 << (pin * 2));
+        This sets all the low bits except (3 << (pin * 2)) to HIGH  -> 0b111111111111001111 (Example)
+        What actually broke = Debug interface (SWD):
+            On STM32:
+                PA13 → SWDIO
+                PA14 → SWCLK
+
+        Your bad MODER write changed their mode from:
+            Alternate Function (debug)      to something else
+        Thus    ST-Link ←X→ MCU         Connection gone.
+        Debugger thinks:
+            communication failure, But MCU is still running fine.
+    Engineers call this:
+        “Bricking the SWD port”
+
+    Another way to get around this is:
+        While Connecting using openocd, use:
+            openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "reset_config srst_only srst_nogate connect_assert_srst"
+        Here:
+            connect_assert_srst:
+                Hold NRST low while connecting. So MCU is kept in reset.
+            srst_nogate:
+                tells Do NOT assume debug access is blocked during reset.
+                    In other words:
+                    Allow SWD communication while reset is held.
+                    Without this, OpenOCD waits for reset to release before talking.
+                    But that defeats the purpose — because once reset releases:
+                    CPU runs → your bad code executes → SWD dies again
+            srst_only:
+                forces use of the hardware reset pin (NRST) instead of software reset.
+                STM32 works best this way.
+                Not always mandatory, but recommended.
+
+    With Only reset_config connect_assert_srst
+        Timeline likely became:
+            NRST asserted
+            ↓
+            OpenOCD thinks debug gated during reset
+            ↓
+            OpenOCD waits
+            ↓
+            NRST released
+            ↓
+            CPU starts running firmware
+            ↓
+            Bad GPIO kills SWD
+            ↓
+            Connection fails
+
+    With the full command
+        With srst_nogate:
+            NRST asserted
+            ↓
+            OpenOCD communicates over SWD immediately
+            ↓
+            Debugger attaches while CPU frozen
+            ↓
+            NRST released into HALT state
+            ↓
+            You win
+
+Also to Note:
+    all the behavior you’re controlling with OpenOCD flags is possible because of the ARM CoreSight debug architecture registers, not because of anything STM32-specific.
+    So the key point:
+    These controls are not local to STM32 — they exist on almost all ARM Cortex-M MCUs.
+    1️⃣ Where the control actually comes from
+            When you run commands like:
+                reset halt, connect_assert_srst, halt
+
+            OpenOCD is writing to ARM core debug registers such as:
+
+                DHCSR — Debug Halting Control and Status Register
+                (halt/run request bits)
+
+                DEMCR — Debug Exception and Monitor Control Register
+                (vector catch on reset, faults, etc.)
+
+                AIRCR — Application Interrupt and Reset Control Register
+                (software reset)
+
+            These registers are defined by ARM itself, not the chip vendor.
+            So this works the same on chips from:
+                STMicroelectronics (STM32)
+                NXP Semiconductors
+                Texas Instruments
+                Nordic Semiconductor
+                etc.
+        As long as it’s Cortex-M.
+
+__________________________________________________
+
+EXTI Controller:
+    Previously You made a LED Toggle Program using the onboard button.
+    This was achieved by "Polling", where the GPIO pin state is continuously being checked by the CPU.
+        Polling 	                        Interrupt
+    CPU asks: “Did it change?”	        Hardware says: “It changed!”
+    CPU busy all the time	            CPU free until event
+    Simple	                            Efficient
+    Power hungry	                    Power efficient
+    Beginner approach	                Professional approach
+    
+    What EXTI Does Instead, With interrupts:
+        CPU sleeps or does other work
+        Button pressed → hardware triggers interrupt
+        CPU jumps to ISR automatically
+
+    Why You Didn’t Need SYSCFG Before?
+        Because:
+            GPIO input reading is local to GPIO peripheral.
+            You directly read:
+            GPIOC->IDR
+            No routing needed.
+
+    Why EXTI Needs SYSCFG?
+        Interrupt system is shared, but STM32 has only:
+        EXTI line 13
+            But many pins could map to it:
+                PA13
+                PB13
+                PC13
+                PD13
+                ...
+
+        Because EXTI must know: Which port connects to which line. This mapping lives in SYSCFG
+        So EXTI + SYSCFG always go together.
+
+
+        So MCU needs to know:
+            Which port should EXTI13 listen to?
+            That selection happens in:
+            SYSCFG_EXTICR register
+        This is called:
+            🔥 Peripheral routing / multiplexing
+        Very common in MCUs.
+
+How Many EXTI Lines Exist?
+The external interrupt/event controller consists of up to 23 edge detectors for generating
+event/interrupt requests. Up to 114 GPIOs are connected to the 16 external interrupt/event lines.
+    The seven other EXTI lines are connected as follows:
+        • EXTI line 16 is connected to the PVD output
+        • EXTI line 17 is connected to the RTC Alarm event
+        • EXTI line 18 is connected to the USB OTG FS Wakeup event
+        • EXTI line 20 is connected to the USB OTG HS (configured in FS) Wakeup event
+        • EXTI line 21 is connected to the RTC Tamper and TimeStamp events
+        • EXTI line 22 is connected to the RTC Wakeup event
+
+On STM32F446RE:
+    Main GPIO interrupt lines
+    EXTI0   → Pin 0 of any port
+    EXTI1   → Pin 1 of any port
+    ...
+    EXTI15  → Pin 15 of any port
+
+So 16 GPIO interrupt lines total.
+    Are There More EXTI Lines?
+    Yes — internal sources too.
+
+Typical full list:
+    0 – 15   GPIO pins
+    16       PVD (power voltage detector)
+    17       RTC Alarm
+    18       USB wakeup
+    19       Ethernet wakeup
+    21       RTC tamper
+    ...
+
+    So essentailly, we have 23 lines which can either be configured to trigger an event(EXTI_EMR), an interrupt(EXTI_IMR) or both. These lines can also be
+    triggered by setting a register EXTI_SWIER. They can also be configured to trigger during the Rising trigger(EXTI_RTSR) or the falling trigger(EXTI_FTSR) or both.
+    There is also a register callen the Pending Register(EXTI_PR). This register is to keeps track of whetehr the event/interrupt has been addressed or not.
+    This is because “Interrupt May Occur When CPU Disabled Interrupts”, i.e:
+        On ARM Cortex-M, interrupts can be disabled using special instructions:
+
+            __disable_irq();   // CPSID i
+            __enable_irq();    // CPSIE i
+
+        These manipulate a CPU register called:
+            PRIMASK
+        
+        When interrupts are disabled:
+            NVIC will NOT interrupt the CPU
+            But hardware still runs.
+
+    Why Would CPU Disable Interrupts?
+        Very common in professional firmware.
+
+Examples:
+    Critical Sections
+        __disable_irq();
+        shared_variable++;
+        __enable_irq();
+
+    Prevents race conditions.
+    RTOS Kernel: RTOS frequently disables interrupts briefly for scheduling.
+    Boot / Initialization: During clock setup.
+    Timing Sensitive Code: Bit-banging protocols.
+
+    Another Important Case — Priority Masking
+        Even if interrupts are enabled globally, Some interrupts may still not run because:
+            Lower priority than current ISR, So they remain pending.
+            Again — PR/NVIC stores them.
+
+    Registers in the EXTI controller:
+        EXTI_IMR    - Interrupt masking Register
+        EXTI_EMR    - Event masking Register
+        EXTI_RTSR   - Rising Trigger Selection Register
+        EXTI_FTSR   - Falling Trigger Selection Register
+        EXTI_SWIER  - Software Interrupt Event Register
+        EXTI_PR     - Pending Register
+
+
+
+    Full Hardware Sequence (Interrupt Case)
+        Button press
+              ↓
+        Edge detected
+              ↓
+        PR bit = 1
+              ↓
+        IMR enabled ?
+              ↓ yes
+        NVIC interrupt request
+              ↓
+        CPU jumps to ISR
+              ↓
+        ISR clears PR
+
+    Full Hardware Sequence (Event Case)
+        Signal edge
+              ↓
+        PR bit = 1
+              ↓
+        EMR enabled ?
+              ↓ yes
+        Event pulse generated
+              ↓
+        Peripheral / CPU wake
+
+    No ISR required.
+
+When Does PR buiget get set?:
+    3 parallel conditions:
+        -Key Concept — PR Is Independent of Masks
+        -Even if IMR = 0:
+        -Edge occurs → PR still becomes 1
+
+_________________________________________________
+
+Understanding SYSCFG:
+    2 primary uses:
+        -remap memory accessible in code area
+        -manage external interrupt line connections to the GPIO's
+
+    Main Registers you see:
+        Register    	Purpose
+        MEMRMP	        Memory remap
+        PMC	            Peripheral mode config
+        EXTICR1	        EXTI config lines 0–3
+        EXTICR2	        EXTI config lines 4–7
+        EXTICR3	        EXTI config lines 8–11
+        EXTICR4	        EXTI config lines 12–15
+        CMPCR	        Compensation cell
+
+    Focussing on EXTICR1-4 lines, each EXTICRX register has 16 allocatable bits, in groups of 4. Each 4 bit group maps to values from 0-7(i.e the GPIO port).
+    Register Layout:
+        There are 16 EXTI lines → grouped into 4 registers:
+                    Register	Lines
+                    EXTICR1	    0–3
+                    EXTICR2	    4–7
+                    EXTICR3	    8–11
+                    EXTICR4	    12–15
+
+        Focussing on EXTICR1, bits:
+            Bits 15:12 → EXTI3
+            Bits 11:8  → EXTI2
+            Bits 7:4   → EXTI1
+            Bits 3:0   → EXTI0
+
+        There is also the limitation that Each line EXTI(N) can only map to certain pins:
+        Ex:
+        EXTI3   -> PA3
+                -> PB3
+                -> PC3
+                .
+                .
+                -> PH3
+
+        THus the port is set by which set of 4 bits is set
+
+    MEMRMP:
+    MEMRMP vs Boot Pins
+    Boot pins decide the initial memory mapping after reset.
+    Boot pins select:
+    
+       Boot Mode	        Address 0x00000000 maps to
+        Flash	               User Flash
+        System Memory	       Bootloader ROM
+        SRAM	               RAM
+
+    MEMRMP allows software to change the mapping after boot.
+        So even if you booted from Flash:
+        You can later remap:
+            SRAM → address 0x00000000
+
+    This is useful for:
+        1️⃣ Bootloaders
+        Bootloader runs in Flash, then remaps SRAM for application.
+        2️⃣ Debugging
+        Run code from RAM at address 0.
+        3️⃣ Performance tricks
+        Vector table relocation.
+
+    Boot pins = hardware decision at reset  
+    MEMRMP = software override after reset
+
+    Example Use Case — Vector Table in RAM
+        Suppose you want interrupt vectors in RAM:
+        Copy vector table → SRAM
+        Set MEMRMP → SRAM at 0x00000000
+        Now CPU fetches vectors from RAM.
+        Very powerful.
+
+    People think MEMRMP changes flash location. It does NOT, it only changes:
+        Which memory responds to address 0x00000000
+        Flash still exists at 0x08000000.
+
+        Visual Mental Model
+            Normal boot:
+            0x00000000 → Flash
+            0x08000000 → Flash
+
+            After remap:
+            0x00000000 → SRAM
+            0x08000000 → Flash
+
+            Two addresses pointing to different memories.
+            On Cortex-M, CPU always fetches reset vector from: address 0x00000004
+            
+    Why MEMRMP Is Useful for Bootloaders
+        Boot pins decide boot only during reset.
+        So how can MEMRMP help?
+        Because bootloaders often need to hand control to another program without resetting again.
+        Applications often have their own ISR routines.
+        Classic Bootloader Scenario:
+            Imagine Flash layout:
+                0x08000000 → Bootloader
+                0x08004000 → Application
+
+                Boot pins → Flash → Bootloader starts.
+                Bootloader decides:
+                Stay in bootloader mode
+                OR
+                Jump to application
+
+            Problem Without MEMRMP, Application expects:
+                Vector table at 0x00000000
+                But bootloader already occupies that mapping. So interrupts would break.
+
+        Solution Options
+            Option 1 — VTOR register (most common)
+            Change vector table pointer:
+                SCB->VTOR = 0x08004000;
+
+            Option 2 — MEMRMP Remap (older MCUs / special cases)
+                Remap memory so application appears at address 0:
+                    0x00000000 → Application region
+                Now application runs normally.
+
+        Modern STM32 code usually prefers:  SCB->VTOR   instead of MEMRMP.
+
+
+    If booting already happens, why would the application require to go read address 0x00000000? Doesnt that only happen during power on?
+        Reading address 0x00000000 happens during reset (power-on).
+        But the application may still need address 0x00000000 after boot, and here’s why.
+
+        What Happens ONLY During Reset
+            On a Cortex-M (like your STM32F446):    At reset the CPU does exactly two memory reads:
+            0x00000000 → Initial Stack Pointer
+            0x00000004 → Reset Handler address
+
+            Then it jumps to Reset_Handler.
+            After that, the CPU never automatically rereads address 0 again.
+
+        But Address 0 Is Still Special After Boot:
+            Even though reset is finished, address 0x00000000 still matters because:
+            Interrupts use the vector table
+            Whenever an interrupt occurs:
+                CPU does:
+                    vector_address = VTOR + (interrupt_number × 4)
+    
+
+        So When Does App Need Address 0?
+            Interrupt vector lookup
+            Some absolute addressing assumptions
+            Legacy startup code
+            RAM execution scenarios
+            Bootloader compatibility
+    
+        Interrupts can read vector table thousands of times per second during runtime.
+        So address 0 remains important.
+
+        Modern STM32 bootloaders usually do:
+            jump_to_app()
+            {
+                uint32_t app_sp = *(uint32_t*)APP_ADDRESS;
+                uint32_t app_reset = *(uint32_t*)(APP_ADDRESS + 4);
+
+                __set_MSP(app_sp);
+
+                SCB->VTOR = APP_ADDRESS;
+
+                ((void (*)(void))app_reset)();
+            }
+
+    Why Would You Need Multiple Vector Tables?
+
+        Because different software stages may exist:
+            Stage	        Needs its own interrupts?	Needs its own vector table?
+            Bootloader	            Yes	                        Yes
+            Application	            Yes	                        Yes
+            RTOS tasks (sometimes)	Maybe	                Sometimes
+            RAM debug firmware	    Yes	                        Yes
+
+        Bootloader and application have:
+            Different ISRs
+            Different stack pointer
+            Different memory layout
+            Different peripherals enabled
+            They must be independent.
+
+        Example: Firmware Update Device
+            Bluetooth speaker firmware update.
+
+            Bootloader:
+                USB / UART firmware update
+                Flash erase/write
+                Minimal drivers
+
+            Application:
+                Audio processing
+                Bluetooth stack
+                UI
+                Sensors
+
+            They cannot share vector tables.
+
+        There is always:
+            Only ONE active vector table at a time
+            But many may exist in memory.
+            CPU just switches which one it uses.
+
+    Another Real Use Case — RAM Execution:
+        When RAM Vector Tables Are Used
+            During firmware update:
+                Copy temporary ISR table to RAM
+                Run flash erase/write
+                Interrupts still work from RAM
+                Because flash may be unavailable during erase.
+
+    Note:
+        VTOR does NOT:
+        ❌ Change program counter
+        ❌ Change stack automatically
+        ❌ Jump execution
+
+    That’s why bootloader jump code also sets MSP manually:
+        __set_MSP(appStack);
+
+    USB Firmware Update — How can firmware be updated if Flash is read-only?
+        -> Flash is not read-only.
+        STM32 flash supports:
+            Page erase
+            Sector erase
+            Word programming
+            But writing requires special sequence.
+
+        Typical flow inside bootloader:
+            FLASH_Unlock();
+            FLASH_EraseSector(...);
+            FLASH_ProgramWord(address, data);
+            FLASH_Lock();
+
+        So firmware update works like this:
+            USB Update Sequence
+                1️⃣ Device enters bootloader mode
+                2️⃣ PC sends new firmware over USB (CDC / DFU / HID etc.)
+                3️⃣ Bootloader receives packets
+                4️⃣ Bootloader erases flash sectors
+                5️⃣ Bootloader writes new data
+                6️⃣ Verify checksum
+                7️⃣ Jump to application
+
+            This is exactly how phones, routers, drones update.
+
+    Why RAM Vector Tables During Firmware Update?
+        Flash erase has a limitation:
+            ❗ You cannot read from flash while it is being erased or programmed (on many MCUs).
+
+        So imagine this situation:
+            Bootloader is updating firmware stored in flash.
+
+        While erase is happening:
+            Interrupt occurs (SysTick, UART, USB etc.)
+            CPU tries to fetch ISR from flash
+            Flash is busy → crash / stall
+
+        Solution:
+        Move vector table to RAM.
+
+        RAM Vector Table Technique
+            memcpy(ram_vector, flash_vector, size);
+            SCB->VTOR = (uint32_t)ram_vector;
+            Now interrupts are fetched from RAM.
+            Even while flash is busy → system survives.
+
+        Used in:
+            USB DFU bootloaders
+            Automotive ECUs
+            OTA firmware systems
+            Safety critical systems
+
+    What Happens Without RAM Vector Table?
+        Erase flash sector
+        ↓
+        Interrupt fires
+        ↓
+        CPU tries to read ISR from flash
+        ↓
+        Flash busy
+        ↓
+        HardFault / lockup
+
+    How Does CPU Know Flash Is Writable?
+        Flash controller peripheral manages it.
+        On STM32 it’s inside: FLASH registers block.
+            Flash controller handles:
+                High voltage generation
+                Timing
+                Error detection
+                Lock protection
+
+    You only command it via registers.
+
+
+    Why Flash Can Still Be Modified?
+        Even though linker says (rx): The MCU allows runtime operations. The rx is just metadata for debugging(unless MPU enabled) or linker in baremetal progragramming
+        FLASH->CR |= FLASH_CR_PG;
+
+        Flash becomes writable temporarily.
+            Linker permissions ≠ Hardware permissions
+
+    So during RAM execution, what needs to be copied to prevent Failure(Read/write conflict)?
+        You only need to:
+            Erase the sector you want to modify
+            Program new data into that sector
+            Flash works in sectors/pages, not whole memory.
+    Professional firmware update model
+        Typical bootloader:
+            Bootloader (flash sector 0-3)
+            Application (rest)
+
+        Bootloader:
+            Receives firmware over UART/USB/CAN
+            Erases application sectors
+            Programs new firmware
+            Jumps to app
+            No RAM copy needed.
+
+    when we say flash is busy, we almost always mean:
+        The flash bank (or at least the sector being programmed/erased) is busy, 
+        not necessarily every byte of flash on the chip.
+
+    But there’s an important practical nuance on most STM32-class MCUs:
+    ✅ What “Flash Busy” Really Means
+    Internally flash is organized into:
+        Banks (sometimes 1, sometimes 2)
+        Sectors / pages inside banks
+    
+    During:
+        Sector erase
+        Programming (write)
+    the flash controller sets:
+        FLASH_SR.BSY = 1
+    while the operation is ongoing.
+
+
+    Why Code Execution Gets Blocked
+        Even if only one sector is being written:
+            👉 The CPU cannot read from that flash bank while it’s busy.
+
+        Since your program is usually executing from flash:
+            ➡️ Instruction fetch stalls → CPU freezes.
+
+        So practically:
+             Operation	            Can CPU execute from same bank?
+            Erase sector	                    ❌ No
+            Program word	                    ❌ No
+            Read other sector same bank	        ❌ No
+            Execute from RAM	                ✅ Yes
+
+    An exception to this is Dual Bank Flash:
+        Operation	                                Allowed?
+        Execute from Bank 1 while writing Bank 2	✅ Yes
+        Execute from Bank 1 while writing Bank 1	❌ No
+
+    This enables read-while-write (RWW).
+
+
+
+
+
+
+    .weak is a keyword used to indicate that if a stronger definition is found in a different section for th symbol, it must use that, else revert to the weaker definition.
+    Ex usage:
+    .weak EXTI15_10_IRQHandler
+    .type EXTI15_10_IRQHandler, %function
+    EXTI15_10_IRQHandler:
+        bl Default_Handler
+        b .
+    
+
+___________________________________________________________
+
+NVIC Priority Grouping:
+    Interrupt priority on Cortex-M is split into:
+        [ Preemption Priority | Subpriority ]
+        The split is controlled by priority grouping in AIRCR register.
+        Because you need to decide:
+            Which interrupt can interrupt another (preemption)      -  affects how nested ISR's can be
+            Which interrupt runs first when both pending (ordering) -   affects ordering of ISR's
+
+
+Interrupt Latency:
+    Interrupt latency = time from interrupt signal to first ISR instruction:
+        For Cortex-M4 typical:
+            12 cycles (no wait states)
+
+    Includes:
+        Priority check
+        Stacking
+        Vector fetch
+        Pipeline refill
+
+    Latency increases if:
+        Flash wait states
+        Bus contention
+        Disabled interrupts
+        Higher priority ISR running
+
+    Extra stacking (FPU case), If FPU used:
+        More registers saved lazily (lazy stacking).
+
+
+    PRIMASK / BASEPRI / FAULTMASK:
+        These are interrupt masking registers in CPU core.
+
+    PRIMASK
+        Simple global interrupt disable (except NMI & HardFault).
+
+        __disable_irq();   // sets PRIMASK
+        __enable_irq();    // clears PRIMASK
+
+    Use when:
+        Critical sections
+        Short timing sensitive code
+
+
+    BASEPRI (very powerful)
+        Masks interrupts below a certain priority level.
+
+        Example:
+            BASEPRI = 0x40
+            Interrupts with priority number ≥ 0x40 blocked.
+            Higher priority still allowed.
+
+        This enables:
+            Critical section but still allow urgent interrupts.
+            Used heavily in RTOS kernels.
+
+        FAULTMASK
+            Blocks everything except NMI.
+            Rarely used.
+            Mostly for:
+            Fault handling
+            Very critical recovery code
+
+    Summary:
+        Register	Blocks
+        PRIMASK	    All normal interrupts
+        BASEPRI	    Lower priority interrupts only
+        FAULTMASK	All except NMI
+
+
+    Why Cortex-M interrupt system is famous
+        Because hardware does:
+        Context save/restore
+        Nesting
+        Priority resolution
+        Tail chaining
+        Late arrival
+        With deterministic timing.
+
+
+
+
+Some Interesting Links:
+    https://stm32world.com/wiki/Boot0
+    https://stackoverflow.com/questions/26891432/jump-to-bootloader-in-stm32-through-application-i-e-using-boot-0-and-boot-1-p
+    https://stm32f4-discovery.net/2017/04/tutorial-jump-system-memory-software-stm32/

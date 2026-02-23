@@ -1,0 +1,24 @@
+wrote:
+    .weak EXTI15_10_IRQHandler
+    .thumb_set EXTI15_10_IRQHandler, Default_Handler
+
+    problem is that it set the symbol: EXTI15_10_IRQHandler = Default_Handler
+    Tis happens even if you have defined the function EXTI15_10_IRQHandler elsewhere in C
+
+    The correct way to handle is to instead write a stub function:
+        .weak EXTI15_10_IRQHandler
+        .type EXTI15_10_IRQHandler, %function
+        EXTI15_10_IRQHandler:
+            bl Default_Handler
+            b .
+
+dereferencing a NULL pointer is a HardFault:    
+    Ex:
+    if(uart_table[i]->instance == instance)
+        instead of 
+    if(uart_table[i] && uart_table[i]->instance == instance)
+
+
+
+GuideLines:
+    Lookup table belongs inside the driver (.c file), NOT in main.  (Ex: for UART/USART)

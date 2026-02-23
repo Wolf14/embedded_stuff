@@ -1,6 +1,6 @@
 The “final link” incorporates several .o files and .a files to produce an executable. It does roughly the following:
 
-1]Parse all the objects and static libraries and put their symbols into a database. Symbols are named addresses of functions and global variables.
+1]Parse all the objects(.o) and static libraries(.a) and put their symbols into a database. Symbols are named addresses of functions and global variables.
 2]Search for all unresolved symbol references in the .o files and match it up with a symbol from the database, recursively doing this for any code in a .a referenced during this process. This forms a sort of dependency graph between sections. This step is called symbol resolution.
 3]Throw out any code that isn’t referenced by the input files by tracing the dependency graph from the entry-point symbol (e.g., _start on Linux). This step is called garbage collection.
 4]Execute the linker script to figure out how to stitch the final binary together. This includes discovering the offsets at which everything will go.
@@ -18,7 +18,7 @@ The value is usually interpreted as an address, but not always tied to a section
 Formally (ELF symbol table entry) looks like:
 name, value, size, binding, type, section_index
 
-Two categories of symbols (this is the key)
+Two categories of symbols
 🔹 A) Section-relative symbols (most symbols):
     These are the ones which the assembler finds while going through the object files
     They produce symbols like:
@@ -78,6 +78,40 @@ Algn        Required alignment                                  ->
 On Linux:   VMA == LMA (almost always)
 On embedded:    .data often has different VMA and LMA
 
+Note: LMA matters only is the section has CONTENTS Attribute
+      VMA is required for all ALLOC sections 
+
+Also LMA exists only on embedded style systems because:
+    - there is no file system
+    - No ELF loader
+    - program bytes must already exist in memory
+    - Some sections must be relocated at startup
+    So LMA answers:
+        “Where are my initialization bytes in memory before I start?”
+    On Linux:
+        There is an ELF Loader that reads ELF file Bytes
+        Initialization bytes are in the file
+        The kernel maps them directly
+        No intermediate memory location exists
+
+    Thus Linux Doesnt Need LMA and ignores it
+
+    Why ELF still contains LMA fields?
+        Because ELF was designed to be flexible enough for:
+            ROM-based systems
+            XIP
+            Bootloaders
+            Embedded targets
+        The p_paddr (physical address) field in program headers:
+            often holds the LMA
+            Linux ignores it
+            Embedded loaders care about it
+
+        So:
+            p_vaddr  → VMA
+            p_paddr  → LMA   (embedded only)
+            p_offset → file location
+
 Attribute Meanings:
 1] CONTENTS:   This section has actual bytes stored in the ELF file
 If CONTENTS is missing: no bytes in the file. 
@@ -93,6 +127,12 @@ Relationship:
 LOAD ⇒ CONTENTS
 ALLOC without LOAD ⇒ zero-filled
 
+LOAD is not a source-level attribute. You never directly set LOAD.
+    LOAD is inferred by the linker when:
+        The section has CONTENTS
+        The section is ALLOC
+        The section is placed into a PT_LOAD segment
+
 If LOAD is set: loader reads bytes from ELF file and copies them to VMA
 This process is called loading and is performed by a loader program. The loader is sometimes called the “dynamic linker”, and is often the same program as the “program linker”; this is why the linker is called ld.
 
@@ -107,13 +147,13 @@ This section contains relocation entries. Important: This flag appears on reloca
 
 
 Use objdump -s <file.o>     -> to see contents of section
-Trivia: if you have printf("Hello"), this string is stored in .rdata. but in printf("H"), "H" would be stored in .text itself. Similarily any of the defined datatypes like int32 int64(i.e any number), etc would also be defined in .trxt instead of .rodata
+Trivia: if you have printf("Hello"), this string is stored in .rdata. but in printf("H"), "H" would be stored in .text itself. Similarily any of the defined datatypes like int32 int64(i.e any number), etc would also be defined in .txt instead of .rodata
 
 LMA and VMA:
 Every section has three addresses associated with it. The simplest is the file offset: how far from the start of the file to find the section.
 
 The location counter (LC) is a conceptual tool used by the assembler during the assembly (translation) process. Its primary role is to assign sequential memory addresses to the instructions and data within a source program. It is an assembler feature and makes exactly one pass through the code.
-When declaring a new section, the VMA and LMA are both set to the value12 of the location counter, which has the extremely descriptive name "."
+When declaring a new section, the VMA and LMA are both set to the value of the location counter, which has the extremely descriptive name "."
 This counter is automatically incremented as data is copied from the input.
 We can explicitly specify the VMA of a section by putting an expression before the colon, and the LMA by putting an expression in the AT(lma) specifier after the colon:
 SECTIONS {
@@ -170,7 +210,7 @@ SECTIONS {
 This allows initialization code to find the section’s address and length; in this case, the pointer values are actually meaningful!
 -It’s common practice to lead linker symbols with two underscores, because C declares a surprisingly large class of symbols reserved for the implementation, so normal user 
 code won’t call them. These include names like __text_start, which start with two underscores, and names starting with an underscore and an uppercase letter, like _Atomic
--A symbol definition can be wrapped in the PROVIDEO() function to make it “weak”, analogous to the “weak symbol” feature found in Clang. This means that the linker will not 
+-A symbol definition can be wrapped in the PROVIDE() function to make it “weak”, analogous to the “weak symbol” feature found in Clang. This means that the linker will not 
 use the definition if any input object defines it.
 
 Using Symbols and LMA's:
@@ -181,19 +221,19 @@ For .bss this is easy, because it doesn’t have loadable content. For .data, th
 
 Misc Linker Script Features:
 Linker script includes a bunch of other commands that don’t fit into a specific category:
-ENTRY() sets the program entry-point, either as a symbol or a raw address. The -e flag can be used to override it. The ld docs assert that there are fallbacks if an entry-point can’t be found, but in my experience you can sometimes get errors here. ENTRY(_start) would use the _start symbol, for example15.
+ENTRY() sets the program entry-point, either as a symbol or a raw address. The -e flag can be used to override it. The ld docs assert that there are fallbacks if an entry-point can’t be found, but in my experience you can sometimes get errors here. ENTRY(_start) would use the _start symbol, for example.
 INCLUDE "path/to/file.ld" is #include but for linker script.
 INPUT(foo.o) will add foo.o as a linker input, as if it was passed at the commandline. GROUP is similar, but with the semantics of --start-group.
 OUTPUT() overrides the usual a.out default output name.
 ASSERT() provides static assertions.
 EXTERN(sym) causes the linker to behave as if an undefined reference to sym existed in an input object.
-LONG() physically writes 4 bytes into the output binary at the current linker location "."(i.e the location counter) . Ex: LONG(5)
+LONG() physically writes 4 bytes(TYPE LONG is 4 bytes) into the output binary at the current linker location "."(i.e the location counter) . Ex: LONG(7)
     Ex:
     Linker script
         .myvars :
         {
             my_cool_variable = .;
-            LONG(5)
+            LONG(7)
         }
     C code
         extern uint32_t my_cool_variable;
@@ -207,5 +247,52 @@ What is CRT: (C Run Time)
             Stack pointer is valid
             .data variables contain initial values
             .bss variables are zero
-            CPU is in the right mode
+            CPU is in the right mode:
+                A) ARM Cortex-M (STM32, bare-metal):
+                    Cortex-M modes
+                        Mode	            Meaning
+                        Thread mode	        Normal program execution (C code runs here)
+                        Handler mode	    Exception / interrupt execution
+                    CPU states that must be “right” for C
+                        Before calling main():
+                        ✔ Thread mode
+                        ✔ Privileged (usually)
+                        ✔ MSP or PSP chosen correctly
+                        ✔ Interrupts in a known state
+                        ✔ Correct stack pointer loaded
+
+                B) ARM Cortex-A (Linux / bootloaders)
+                    ARMv7/ARMv8 modes (examples)
+                        Mode	Purpose
+                        Reset	Power-on
+                        SVC	OS / kernel
+                        IRQ / FIQ	Interrupts
+                        Abort / Undefined	Fault handling
+                        User	Applications
+                        EL0–EL3	ARMv8 exception levels
+                        Much more complex.
+                    C code expects:
+                        A specific mode (e.g., SVC or EL1)
+                        MMU state defined
+                        Stack pointer initialized
+                C) x86 (for completeness)
+                        Mode	Meaning
+                        Real mode	BIOS
+                        Protected mode	32-bit OS
+                        Long mode	64-bit OS
             Calling conventions work
+
+Also in linker.ld file:
+KEEP(*(.isr_vector)) explained:
+    KEEP prevents linker garbage collection from removing the section.
+    Why would the linker remove it?
+        Because of this optimization:
+            --gc-sections
+        When enabled, the linker:
+            Starts from entry point (Reset_Handler)
+            Keeps only sections reachable via symbols
+            Discards everything else
+        Problem:
+            The vector table is not referenced by code
+            The CPU reads it directly
+            Linker sees it as “unused”

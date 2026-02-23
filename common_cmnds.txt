@@ -1,0 +1,23 @@
+To Build:
+rmdir /s /q CMakeFiles
+del CMakeCache.txt
+cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=../toolchain-arm-none-eabi.cmake ..
+ninja
+
+
+target remote :3333
+monitor reset halt
+load
+
+
+To execute:
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+"G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-gdb.exe" stm32.elf
+
+
+Debug Fault state:
+    To halt cpu immediately after connection while holding the reset during debugger connection:
+        openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "reset_config srst_only srst_nogate connect_assert_srst"
+
+Debug Code: (Example symbol "EXTI15_10")
+    "G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-nm.exe" stm32.elf | find "EXTI15"
