@@ -380,3 +380,591 @@ Timers:
         For ARR, this can be controlled using the ARPE flag, FOR PSC, almost always buffered
         Thus best to use, EGR after setting new values to ensure new values are laoded.
 
+
+
+When to use volatile?:
+    Use volatile only for variables that can change outside the current execution flow, especially:
+    modified in an ISR and read in main
+    modified in main and read in an ISR
+    mapped to hardware registers
+
+    Why?
+        Because otherwise the compiler may optimize like this:
+        cache line_ready in a register
+        assume it never changes inside the while(1) loop
+        and never re-read memory
+
+__________________________________________________________
+
+Introduction to DMA controller:
+    DMA is an AMBA advanced high-performance bus (AHB) module(AMBA is Arm’s standard for how on-chip blocks communicate)
+    An AMBA Advanced High-performance Bus (AHB) module is basically a hardware block inside a microcontroller/SoC that connects to the chip’s high-speed internal bus.
+    Features 3 AHB ports:
+        - 1slave port for DMA programming
+        - 2 master ports(peripheral and memory ports)
+
+        AHB Slave port means that the DMA is used as a slave on the bus while accessed using this port.
+            -This is the port through which the CPU configures the DMA:
+                - stream/channel select
+                - source address
+                - destination address
+                - transfer count
+                - control bits
+            - the cpu acts as the bus master, DMA register block acts as bus slave
+
+        Conversely, the 2 AHB Master ports(a.k.a dual AHB master bus architecture), are the sides through which 
+        DMA initiates transfers on  the bus after you enable it. i.e, once configured, the DMA becomes a bus initiator and performs read/writes without the CPU moving each byte/word
+        For the classic dual-port DMA, the two master ports are:
+            AHB memory port → mainly for memory accesses
+            AHB peripheral port → mainly for peripheral accesses
+        Why 2 ports?    -> DMA transfer suaully has 2 ends
+                                -> a source
+                                -> a destination
+        Example: UART RX (peripheral → memory)
+            DMA reads from USARTx->DR/RDR using the peripheral port
+            DMA writes into RAM using the memory port
+
+        Example: UART TX (memory → peripheral)
+            DMA reads from RAM using the memory port
+            DMA writes to USARTx->DR/TDR using the peripheral port
+
+        How dual is useful?
+            Having separate master ports lets the DMA pipeline the transfer better:
+                fetch from one side
+                push to the other side
+                use the internal FIFO/buffering between them
+
+            This architecture helps optimize bandwidth
+
+        Note: The DMA still sits on the STM32 bus matrix, so:
+                if CPU and DMA access different slaves, they may proceed without conflict
+                if they need the same slave (same SRAM, same peripheral bridge, etc.), the bus matrix arbitrates access
+
+        STM32 F4 has 2 DMA controllers, each with 8 streams. Each stream has 8 channels
+        Note:   -> only 1 channel/request can be actuve at the same time in a stream
+                -> More than 1 enabled DMA stream must not serve the same peripheral request
+
+        Stream Priority:
+            -> Each port has an arbiter for handling the priorty between other streams
+            -> is software configurable
+
+        Source & Destination Addresses: -> should be in AHB or APB addresses
+
+        Transfer Mode:
+            3 different transfer modes:
+                -> Periphral to memory
+                -> memory to peripheral
+                -> Memory to memory    -> only supported by DMA2
+                                    -> circular and direct modes not allowed
+
+        Transfer Size:
+            Transfer size value has to be defined only when the DMA is the flow controller(Meaning dat flow from DMA buffer to external peripheral)
+            The value defines the volume of data to be transferred from source to destination
+            Transfer size is defined by the DMA_SxNDTR register value and by the peripheral side data width
+
+        Incrementing source/destination address
+        It is possible to configure the DMA to automatically increment the source and/or destination
+        address after each data transfer.
+
+        Source and destination data width
+            Data width for source and destination can be defined as:
+            ● Byte (8 bits)
+            ● Half-word (16 bits)
+            ● Word (32 bits)
+
+        Data Width
+            Data width is simply how many bytes each individual data item is in a transfer. On STM32 DMA you have three options:
+                Byte — 8 bits (1 byte)
+                Half-word — 16 bits (2 bytes)
+                Word — 32 bits (4 bytes)
+
+            You set this independently for both the memory side and the peripheral side using the MSIZE and PSIZE bits in the stream's CR register.
+
+            Why Does It Matter?
+            It tells the DMA how to "chunk up" the data as it moves it. For example if you set NDTR = 10 and data width is
+             byte, you transfer 10 bytes. If data width is word, you transfer 10 × 4 = 40 bytes total.
+
+
+            Match It to Your Peripheral
+                You generally want to match the data width to whatever the peripheral naturally works with:
+                    USART DR is 8 or 9 bits → use byte
+                    SPI DR can be 8 or 16 bits → byte or half-word
+                    ADC DR is 12 bits → half-word (16-bit)
+                    Memory to memory copying a uint32_t array → word
+
+            Summary of the Terms:
+                Data Width: PSIZE, MSIZE    -> size of 1 ITEM on each side
+                Transfer Size:  NDTR        -> how many ITEMS the DMA will move before completing
+                Burst Size: PBURST, MBURST  -> how many items the DMA tries to move in 1 grouped bus burst
+                                            -> Each burst contains an aggregated set of data items sent under teh same bus transaction
+                                            -> Note: It is not guaranteed that the hardware will always put the whole programmed burst on the bus exactly as one burst.
+                                                ST explicitly says the GPDMA may implement a programmed burst in either of these ways:
+                                                as the same AHB transaction on the master port, or
+                                                As a series of shorter bursts and/or singles if constraints force it.
+                Threshold:  FTH             -> how full the DMA's internal FIFO should get before it push/pulls data in a chunk
+                                            -> Note: Threshold content must match an integer number of memory-burst transfers
+
+            Another Ex:
+                If NDTR = 99 Bytes, DMA FIFO = 16 Bytes and FTH = 1/2   -> 8 Bytes
+                For 99 bytes total, that gives:
+                    12 full 8-byte chunks = 96 bytes
+                    3 bytes left over
+                    At the end, those last 3 bytes do not disappear. The DMA completes the transfer by flushing the remaining 
+                    FIFO contents. If the remaining data is smaller than the configured burst size, ST says the DMA finishes 
+                    with single transactions to flush the remainder.
+
+           
+        Doube Buffer Mode:
+            one DMA stream uses two memory buffers, and the hardware automatically alternates between them
+            Instead of one memory address, the stream has two:
+                M0AR = memory buffer 0 address
+                M1AR = memory buffer 1 address
+            What happens at each swap, When the transfer count reaches 0:
+                the current buffer period ends,
+                the DMA toggles which memory target is active,
+                the transfer count is reloaded,
+                the DMA continues with the other buffer.
+            Why it exists
+                It lets software process one buffer while DMA is filling/using the other. That is the main benefit ST and related docs emphasize.
+                This is ideal for continuous streams like:
+                    ADC sampling
+                    I2S/audio
+                    SPI streaming
+                    continuous UART RX (if you want fixed-size chunks)
+            
+            Note: On classic STM32 DMA, double buffer mode is only available with circular operation
+
+            Double buffer mode is:
+                “DMA keeps streaming continuously, while hardware flips between buffer A and buffer B so CPU and DMA can work on different buffers at the same time.”
+
+        The CT bit
+            There is a status/control bit called CT that tells you which memory target is currently active. ST notes that CT is used to monitor which destination is being used for data transfers.
+            Software uses that to infer:
+                which buffer DMA is writing/reading now
+                which buffer is safe for software to process now
+
+            A common rule:
+                if DMA is currently on M0, software works on M1
+                if DMA is currently on M1, software works on M0
+
+        In repeating mode, how is memory arranged?
+            Single-buffer circular: one buffer wraps around itself.
+            Double-buffer circular (DBM): two buffers alternate (M0AR and M1AR). After each transaction, the memory pointers are switched and another transaction begins.
+
+        So “plain circular mode” meant:     circular behavior with only one memory buffer
+        while “double buffer mode” meant:   circular behavior with two memory buffers
+
+        In plain circular mode with a single buffer:
+            [  buffer  ] → wraps back to start of same buffer
+            The DMA always writes into the same memory region. If your CPU is too slow processing it, the DMA will start overwriting data you haven't finished with yet.
+            In double buffer mode:
+            [  buffer 0  ] → finishes → switches to [  buffer 1  ] → finishes → switches back to [  buffer 0  ]
+            While the DMA is filling buffer 1, the CPU owns buffer 0 and can take its time processing it. The hardware automatically swaps which buffer the DMA is targeting, and you can even update the idle buffer's address on the fly via M0AR or M1AR.
+
+
+        So the Key Benefit
+            Plain circular mode gives you the half-transfer/transfer-complete interrupt trick to split one buffer in two, 
+            but the DMA never actually stops touching that memory region. Double buffer mode gives you true hardware-enforced 
+            separation — the DMA is physically writing to a completely different address while you process the other one, with 
+            no risk of collision.
+
+        What Can Happen in Plain Circular Mode:
+            Buffer: [ 0 ][ 1 ][ 2 ][ 3 ][ 4 ][ 5 ][ 6 ][ 7 ]
+            DMA fills:   0  1  2  3  4  5  6  7  0  1  2 ...  (keeps going)
+            CPU reads:   0  1  2  3  ... (CPU is slow, still back here)
+            If the DMA laps the CPU — meaning it wraps around and starts writing to index 0 again before the 
+            CPU has finished reading it — you get corrupted data. The DMA silently overwrites values the CPU 
+            hasn't processed yet. No error, no warning, it just happens.
+            
+            The Half-Transfer Trick Mitigates This But Doesn't Eliminate It
+            The HTIF/TCIF interrupt approach helps by giving the CPU a "heads up" but it's still your responsibility 
+            to ensure the CPU finishes processing its half before the DMA comes back around. If your ISR or processing 
+            routine takes too long, you still overwrite.
+            
+            Double Buffer Solves This Properly
+            Because the DMA is physically writing to a completely separate address, there is no possibility of it 
+            overwriting what the CPU is reading. The hardware enforces the separation. You just make sure you finish 
+            processing buffer 0 before the DMA completes buffer 1 and switches back — which is a much more relaxed timing 
+            requirement than racing within the same memory region.
+            
+            So to directly answer your question — yes, in plain circular mode both the CPU and DMA can be accessing the same 
+            memory simultaneously, and if you're not careful with timing you will get overwrites with no indication anything 
+            went wrong. That's exactly the problem double buffer mode was designed to solve.
+
+
+        Flow Control:
+            Is the unit that controls the data transfer length and which is responsible
+            for stopping the DMA transfer.
+
+            The flow controller can be either the DMA or the peripheral.
+                • With DMA as flow controller:
+                    In this case, it is necessary to define the transfer size value in the DMA_SxNDTR register
+                    before enabling the associated DMA stream. When a DMA request is served, the transfer
+                    size value decreases by the amount of transferred data (depending of the type of request:
+                    burst or single).
+                    When the transfer size value reaches 0, the DMA transfer is finished and the DMA stream is
+                    disabled.
+                • With the peripheral as flow controller:
+                    This is the case when the number of data items to be transferred is unknown. The peripheral
+                    indicates by hardware to the DMA controller when the last data are being transferred. Only
+                    the SD/MMC and JPEG peripherals support this mode.
+
+        For each DMA stream, an interrupt can be produced on the following events:
+            • Half-transfer reached
+            • Transfer complete
+            • Transfer error
+            • FIFO error (overrun, underrun or FIFO level error)
+            • Direct mode error
+            Separate interrupt enable control bits are available for flexibility as shown in the table below.
+
+
+        Interrupt event          Event flag         Enable control bit
+        Half-transfer               HTIF                   HTIE
+        Transfer complete           TCIF                   TCIE
+        Transfer error              TEIF                   TEIE
+        FIFO overrun/underrun       FEIF                   FEIE
+        Direct mode error           DMEIF                  DMEIE
+
+        Before setting an enable control bit EN = 1, the corresponding event flag must be cleared,
+        otherwise an interrupt is immediately generated.
+
+    DMA Registers:
+        Summary:
+            DMA_LISR    -> To read Low interrupt status  (x = 0 - 3)
+            DMA_HISR    -> To read High interrupt status (x = 4 - 7)
+            DMA_LIFCR   -> To Reset Flag on Low Interrupt status    (x = 0 - 3)   
+            DMA_HIFCR   -> To Reset Flag on High Interrupt status   (x = 4 - 7)
+            DMA_SxCR    -> Important, sets: (x = 0 - 7)
+                            - channel, memory burst size peripheral burst size
+                            - current target, double buffer Mode, Priority level
+                            - Memory data size, peripheral data size
+                            - Circular mode, Data transfer Direction, PFCTRL
+                            - Interrupt enables:  TCIE, HTIE, TEIE, DMEIE
+                            - Stream Enable Flag (EN) 
+            DMA_SxNDTR  -> Number of Data Items to transfer (x = 0 - 7)
+            DMA_SxPAR   -> Peripheral Address Register  (x = 0 - 7)
+            DMA_SxM0AR  -> Memroy 0 Address Register    (x = 0 - 7)
+            DMA_SxM1AR  -> Memory 1 Address Register    (x = 0 - 7)
+            DMA_SxFCR   -> FIFO Control Register:       (x = 0 - 7)
+                            - FIFO Interrupt enable
+                            - Read FIFO filled status
+                            - Direct mode enable
+                            - FIFO threshold selection
+
+        DMA_LISR: DMA low interrupt status register
+            Address offset: 0x000           Reset value: 0x0000 0000
+            Bits 27, 21, 11, 5 
+            TCIF[3:0]: Stream x transfer complete interrupt flag (x = 3 to 0)
+                This bit is set by hardware. It is cleared by software writing 1 to the corresponding bit
+                in DMA_LIFCR register.
+                0: No transfer complete event on stream x
+                1: A transfer complete event occurred on stream x.
+
+            Bits 26, 20, 10, 4
+                HTIF[3:0]: Stream x half transfer interrupt flag (x = 3 to 0)
+                    This bit is set by hardware. It is cleared by software writing 1 to the corresponding bit
+                    in DMA_LIFCR register.
+                    0: No half transfer event on stream x
+                    1: An half transfer event occurred on stream x
+
+            Bits 25, 19, 9, 3
+                TEIF[3:0]: Stream x transfer error interrupt flag (x = 3 to 0)
+                    This bit is set by hardware. It is cleared by software writing 1 to the corresponding bit
+                    in DMA_LIFCR register.
+                    0: No transfer error on stream x
+                    1: A transfer error occurred on stream x
+
+            Bits 24, 18, 8, 2 
+                DMEIF[3:0]: Stream x direct mode error interrupt flag (x = 3 to 0)
+                    This bit is set by hardware. It is cleared by software writing 1 to the corresponding bit
+                    in DMA_LIFCR register.
+                    0: No direct mode error on stream x
+                    1: A direct mode error occurred on stream x.
+
+            Bits 22, 16, 6, 0 
+                FEIF[3:0]: Stream x FIFO error interrupt flag (x = 3 to 0)
+                    This bit is set by hardware. It is cleared by software writing 1 to the corresponding bit
+                    in DMA_LIFCR register.
+                    0: No FIFO error event on stream x
+                    1: A FIFO error event occurred on stream x.
+
+        DMA high interrupt status register (DMA_HISR):
+            Address offset: 0x004       Reset value: 0x0000 0000
+            Same Structure and bits as LISR
+                -> Only difference is instead of x = 3 to 0, it is x = 7 to 4
+
+
+        DMA low interrupt flag clear register (DMA_LIFCR)
+            Address offset: 0x008       Reset value: 0x0000 0000
+            Bits 27, 21, 11, 5 
+            CTCIF[3:0]: 
+                Stream x clear transfer complete interrupt flag (x = 3 to 0)
+                Writing 1 to this bit clears the corresponding TCIFx flag in the DMA_LISR register.
+            
+            Bits 26, 20, 10, 4 
+            CHTIF[3:0]: Stream x clear half transfer interrupt flag (x = 3 to 0)
+                Writing 1 to this bit clears the corresponding HTIFx flag in the DMA_LISR register
+                    
+            Bits 25, 19, 9, 3 
+            CTEIF[3:0]: Stream x clear transfer error interrupt flag (x = 3 to 0)
+                Writing 1 to this bit clears the corresponding TEIFx flag in the DMA_LISR register.
+                    
+            Bits 24, 18, 8, 2 
+            CDMEIF[3:0]: Stream x clear direct mode error interrupt flag (x = 3 to 0)
+                Writing 1 to this bit clears the corresponding DMEIFx flag in the DMA_LISR register.
+                    
+            Bits 23, 17, 7, 1 Reserved, must be kept at reset value.
+                    
+            Bits 22, 16, 6, 0 
+            CFEIF[3:0]: Stream x clear FIFO error interrupt flag (x = 3 to 0)
+                Writing 1 to this bit clears the corresponding CFEIFx flag in the DMA_LISR register.
+
+
+        DMA high interrupt flag clear register (DMA_HIFCR)
+            Address offset: 0x00C       Reset value: 0x0000 0000
+            Same structure as LIFCR
+                -> Only difference is instead of x = 0 to 3, it is x = 7 to 4
+
+
+        DMA stream x configuration register (DMA_SxCR)
+            This register is used to configure the concerned stream.
+            Address offset: 0x010 + 0x18 * x, (x = 0 to 7)      Reset value: 0x0000 0000
+            Bits 27:25 CHSEL[2:0]: Channel selection
+                These bits are set and cleared by software.
+                000: channel 0 selected
+                001: channel 1 selected
+                010: channel 2 selected
+                011: channel 3 selected
+                100: channel 4 selected
+                101: channel 5 selected
+                110: channel 6 selected
+                111: channel 7 selected
+                These bits are protected and can be written only if EN is 0
+
+            Bits 24:23 MBURST[1:0]: Memory burst transfer configuration
+                These bits are set and cleared by software.
+                00: Single transfer
+                01: INCR4 (incremental burst of 4 beats)
+                10: INCR8 (incremental burst of 8 beats)
+                11: INCR16 (incremental burst of 16 beats)
+                These bits are protected and can be written only if EN = 0.
+                In direct mode, these bits are forced to 0x0 by hardware as soon as bit EN = 1
+
+            Bits 22:21 PBURST[1:0]: Peripheral burst transfer configuration
+                These bits are set and cleared by software.
+                00: Single transfer
+                01: INCR4 (incremental burst of 4 beats)
+                10: INCR8 (incremental burst of 8 beats)
+                11: INCR16 (incremental burst of 16 beats)
+                These bits are protected and can be written only if EN = 0.
+                In direct mode, these bits are forced to 0x0 by hardware.
+
+            Bit 19 CT: Current target (only in double-buffer mode)
+                This bit is set and cleared by hardware. It can also be written by software.
+                0: Current target memory is memory 0 (addressed by the DMA_SxM0AR pointer).
+                1: Current target memory is memory 1 (addressed by the DMA_SxM1AR pointer).
+                This bit can be written only if EN = 0 to indicate the target memory area of the first transfer.
+                Once the stream is enabled, this bit operates as a status flag indicating which memory area
+                is the current target.
+
+            Bit 18 DBM: Double-buffer mode
+                This bit is set and cleared by software.
+                0: No buffer switching at the end of transfer
+                1: Memory target switched at the end of the DMA transfer
+                This bit is protected and can be written only if EN = 0.
+
+            Bits 17:16 PL[1:0]: priority level
+                These bits are set and cleared by software.
+                00: Low
+                01: Medium
+                10: High
+                11: Very high
+                These bits are protected and can be written only if EN = 0
+
+            Bit 15 PINCOS: Peripheral increment offset size
+                This bit is set and cleared by software
+                0: The offset size for the peripheral address calculation is linked to the PSIZE.
+                1: The offset size for the peripheral address calculation is fixed to 4 (32-bit alignment).
+                This bit has no meaning if bit PINC = 0.
+                This bit is protected and can be written only if EN = 0.
+                This bit is forced low by hardware when the stream is enabled (EN = 1) if the direct mode is
+                selected or if PBURST are different from 00
+
+            Bits 14:13 MSIZE[1:0]: Memory data size
+                These bits are set and cleared by software.
+                00: Byte (8-bit)
+                01: Half-word (16-bit)
+                10: Word (32-bit)
+                11: Reserved
+                These bits are protected and can be written only if EN = 0.
+                Note:   In direct mode, MSIZE is forced by hardware to the same value as PSIZE as soon as EN = 1
+
+            Bits 12:11 PSIZE[1:0]: Peripheral data size
+                These bits are set and cleared by software.
+                00: Byte (8-bit)
+                01: Half-word (16-bit)
+                10: Word (32-bit)
+                11: Reserved
+                These bits are protected and can be written only if EN = 0.
+
+            Bit 8 CIRC: Circular mode
+                This bit is set and cleared by software and can be cleared by hardware.
+                0: Circular mode disabled
+                1: Circular mode enabled
+                When the peripheral is the flow controller (bit PFCTRL = 1), and the stream is enabled
+                (EN = 1), then this bit is automatically forced by hardware to 0.
+                It is automatically forced by hardware to 1 if the DBM bit is set, as soon as the stream is
+                enabled (EN = 1).
+
+            Bits 7:6 DIR[1:0]: Data transfer direction
+                These bits are set and cleared by software.
+                00: Peripheral-to-memory
+                01: Memory-to-peripheral
+                10: Memory-to-memory
+                11: Reserved
+                These bits are protected and can be written only if EN = 0.
+
+
+            Bit 5 PFCTRL: Peripheral flow controller
+                This bit is set and cleared by software.
+                0: DMA is the flow controller.
+                1: The peripheral is the flow controller.
+                This bit is protected and can be written only if EN = 0.
+                When the memory-to-memory mode is selected (bits DIR[1:0] = 10), then this bit is
+                automatically forced to 0 by hardware.
+
+            Bit 4 TCIE: Transfer complete interrupt enable
+                This bit is set and cleared by software.
+                0: TC interrupt disabled
+                1: TC interrupt enabled
+
+            Bit 3 HTIE: Half transfer interrupt enable
+                This bit is set and cleared by software.
+                0: HT interrupt disabled
+                1: HT interrupt enabled
+
+            Bit 2 TEIE: Transfer error interrupt enable
+                This bit is set and cleared by software.
+                0: TE interrupt disabled
+                1: TE interrupt enabled
+
+            Bit 1 DMEIE: Direct mode error interrupt enable
+                This bit is set and cleared by software.
+                0: DME interrupt disabled
+                1: DME interrupt enabled
+
+            Bit 0 EN: Stream enable/flag stream ready when read low
+                This bit is set and cleared by software.
+                0: Stream disabled
+                1: Stream enabled
+                This bit is cleared by hardware:
+                – on a DMA end of transfer (stream ready to be configured)
+                – if a transfer error occurs on the AHB master buses
+                – when the FIFO threshold on memory AHB port is not compatible with the burst size
+                When this bit is read as 0, the software is allowed to program the configuration and FIFO bits
+                registers. It is forbidden to write these registers when the EN bit is read as 1.
+                
+                Note: Before setting EN bit to 1 to start a new transfer, the event flags corresponding to
+                the stream in DMA_LISR or DMA_HISR register must be cleared.
+
+
+        DMA stream x number of data register (DMA_SxNDTR)
+            Address offset: 0x014 + 0x18 * x, (x = 0 to 7)      Reset value: 0x0000 0000
+            Bits 15:0 
+                NDT[15:0]: Number of data items to transfer (0 up to 65535)
+                    This bitfield can be written only when the stream is disabled. When the stream is enabled,
+                    this bitfield is read-only, indicating the remaining data items to be transmitted. This bitfield
+                    decrements after each DMA transfer.
+                    Once the transfer is completed, this bitfield can either stay at zero (when the stream is in
+                    normal mode), or be reloaded automatically with the previously programmed value
+                    in the following cases:
+                    – when the stream is configured in circular mode
+                    – when the stream is enabled again by setting EN bit to 1
+                    If the value of this bitfield is zero, no transaction can be served even if the stream is enabled
+
+
+        DMA stream x peripheral address register (DMA_SxPAR)
+            Address offset: 0x018 + 0x18 * x, (x = 0 to 7)      Reset value: 0x0000 0000
+            Bits 31:0 
+                PAR[31:0]: Peripheral address
+                    Base address of the peripheral data register from/to which the data is read/written.
+                    These bits are write-protected and can be written only when bit EN = 0 in DMA_SxCR
+
+        DMA stream x memory 0 address register (DMA_SxM0AR)
+            Address offset: 0x01C + 0x18 * x, (x = 0 to 7)      Reset value: 0x0000 0000
+            Bits 31:0 
+                M0A[31:0]: Memory 0 address
+                    Base address of memory area 0 from/to which the data is read/written.
+                    These bits are write-protected. They can be written only if:
+                    – the stream is disabled (EN = 0 in DMA_SxCR) or
+                    – the stream is enabled (EN = 1 in DMA_SxCR) and CT = 1 in DMA_SxCR
+                    (in double-buffer mode).
+
+        DMA stream x memory 1 address register  (DMA_SxM1AR)
+            Address offset: 0x020 + 0x18 * x, (x = 0 to 7)      Reset value: 0x0000 0000
+            Bits 31:0 M1A[31:0]: Memory 1 address (used in case of double-buffer mode)
+                Base address of memory area 1 from/to which the data is read/written.
+                This bitfield is used only for the double-buffer mode.
+                These bits are write-protected. They can be written only if:
+                – the stream is disabled (EN = 0 in DMA_SxCR) or
+                – the stream is enabled (EN = 1 in DMA_SxCR) and bit CT = 0 in DMA_SxCR
+
+        DMA stream x FIFO control register (DMA_SxFCR)
+            Address offset: 0x024 + 0x18 * x, (x = 0 to 7)          Reset value: 0x0000 0021
+            Bit 7 FEIE: FIFO error interrupt enable
+                This bit is set and cleared by software.
+                0: FE interrupt disabled
+                1: FE interrupt enabled
+
+            Bits 5:3 FS[2:0]: FIFO status
+                These bits are read-only.
+                000: 0 < fifo_level < 1/4
+                001: 1/4 ≤ fifo_level < 1/2
+                010: 1/2 ≤ fifo_level < 3/4
+                011: 3/4 ≤ fifo_level < full
+                100: FIFO is empty.
+                101: FIFO is full.
+                Others: Reserved (no meaning)
+                These bits are not relevant in the direct mode (DMDIS = 0).
+
+            Bit 2 DMDIS: Direct mode disable
+                This bit is set and cleared by software. It can be set by hardware.
+                0: Direct mode enabled
+                1: Direct mode disabled
+                This bit is protected and can be written only if EN = 0.
+                This bit is set by hardware if the memory-to-memory mode is selected (DIR = 10
+                in DMA_SxCR), and EN = 1 in DMA_SxCR because the direct mode is not allowed
+                in the memory-to-memory configuration.
+
+            Bits 1:0 FTH[1:0]: FIFO threshold selection (16 Bytes is Max)
+                These bits are set and cleared by software.
+                00: 1/4 full FIFO
+                01: 1/2 full FIFO
+                10: 3/4 full FIFO
+                11: Full FIFO
+                These bits are not used in the direct mode when the DMIS = 0.
+                These bits are protected and can be written only if EN = 0
+
+
+
+
+
+    Starting off with UART TX with DMA:
+        Steps:
+            Pick the right DMA stream/channel for USART request
+            Set source/destination addresses
+            Set transfer count, choose direction, then enable both the DMA stream and the USART's DMA request bit
+
+        Without DMA:
+            CPU gets TXE interrupt
+            CPU writes one byte to USARTx->DR
+            repeats for every byte
+
+        With DMA:
+            CPU sets up a block transfer once
+            DMA feeds bytes from memory to USARTx->DR
+            CPU only handles “done” (or errors)
+
+        DMA Registers:
+            DMA_LISR: DMA low interrupt status register
+        

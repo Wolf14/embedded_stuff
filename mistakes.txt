@@ -19,6 +19,19 @@ dereferencing a NULL pointer is a HardFault:
     if(uart_table[i] && uart_table[i]->instance == instance)
 
 
+Was configuring pins on UART before enabling clock for UART resulting in faults and unexpected errors.
+
+
+Ronny mistakes:
+    BootROM setup might fail if interrupts still enabled
+    CAN-UART bridge interface, might require use of DMA to reduce number of ISR calls as each UART character makes 1 ISR call
+
+
 
 GuideLines:
-    Lookup table belongs inside the driver (.c file), NOT in main.  (Ex: for UART/USART)
+    Lookup table function belongs inside the driver (.c file), NOT in main.  (Ex: for UART/USART)
+
+
+Unsolved problems:
+    when teh UART was set up without enabling clock, it didnt work properly, but even after fixing, it didnt resolve the issue,
+    had to disconnect and reconnect board befroe it worked again(No output observed on TX)
