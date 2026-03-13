@@ -31,6 +31,14 @@ static DMA_Handle_t s_uart2_tx_dma = {
     .flag_shift      = 16U
 };
 
+static DMA_Handle_t s_uart2_rx_dma = {
+    .controller      = DMA1,
+    .stream          = DMA1_Stream5,
+    .channel         = 4U,
+    .is_high_stream  = 0U,   // Stream5 uses LISR/LIFCR on STM32F4
+    .flag_shift      = 22U   // stream 5 FEIF bit position base in LISR group
+};
+
 /* ================= INTERNAL HELPERS ================= */
 
 static void BSP_LED_Init(void)

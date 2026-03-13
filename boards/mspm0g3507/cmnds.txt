@@ -1,0 +1,2 @@
+openocd:
+    openocd -f interface/stlink.cfg -f target/ti/mspm0.cfg -c "adapter speed 400"

@@ -21,3 +21,22 @@ Debug Fault state:
 
 Debug Code: (Example symbol "EXTI15_10")
     "G:\Software\compilers\gcc_arm\gcc-arm-none-eabi-10.3-2021.10\bin\arm-none-eabi-nm.exe" stm32.elf | find "EXTI15"
+
+To set it to Boot from ROM mode:
+    - Check schematics to see if there is a pull up resistor on Pin 7 on CN7 before shorting
+    - Take the jumper on CN12 and short pin 5(VDD) and pin 7(BOOT0) on CN7  (This causes it to boot from SRAM)
+
+
+To program an stm32 via an external ST-Link V2:(using openocd):
+    - You need to have necessary st link drivers installed(already have that from insalling stmcubeide32)
+    - Disconnect jumper on CN2(This jumper when connected connects the mcu to the in built st link debugger/programmer. only 1 debugger is to be connected at a time. Hence disconnect these 2 jumpers)
+    - Make following connections:
+        ST-LINK SWCLK → STM32 SWCLK
+        ST-LINK SWDIO → STM32 SWDIO
+        ST-LINK GND → GND
+        ST-LINK NRST → NRST (recommended, not always mandatory)
+        ST-LINK VDD_TARGET / VTref → target 3.3V
+        SWO optional
+    - Use your old command to program as usual: openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+            - Only downside is you wont have access to the vitual COM port you  used for serial port access
+    

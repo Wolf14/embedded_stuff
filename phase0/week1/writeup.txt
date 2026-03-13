@@ -6,6 +6,8 @@ Tools used:
         -used gdb.exe
     openocd             (using through msys2 inside mingw64 environment)
 
+    Update(10/3/26):    switched from openocd in msys2 to standalone windows binary from (https://gnutoolchains.com/arm-eabi/openocd/), version: 20260302
+
 1]  
 Quickly went through schematic and pin layout
     Created a basic project to blink onboard LED
