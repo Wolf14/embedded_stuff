@@ -1,0 +1,373 @@
+Archive member included to satisfy reference by file (symbol)
+
+g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memcpy.o)
+                              CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj (memcpy)
+g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+                              CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj (memset)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x08000000         0x00080000         xr
+SRAM             0x20000000         0x00020000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+LOAD CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+LOAD CMakeFiles/stm32.elf.dir/src/main.c.obj
+LOAD CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+LOAD CMakeFiles/stm32.elf.dir/core/faults.c.obj
+LOAD CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+LOAD CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+LOAD CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+LOAD CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+LOAD CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+LOAD CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+START GROUP
+LOAD g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard\libgcc.a
+LOAD g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a
+LOAD g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libc.a
+END GROUP
+                0x20020000                _estack = (ORIGIN (SRAM) + LENGTH (SRAM))
+
+.isr_vector     0x08000000      0x188
+ *(.isr_vector)
+ .isr_vector    0x08000000      0x188 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+                0x08000000                g_pfnVectors
+
+.rodata         0x08000188       0x14
+ .rodata        0x08000188        0x4 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .rodata        0x0800018c        0x5 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ *fill*         0x08000191        0x3 
+ .rodata        0x08000194        0x4 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .rodata        0x08000198        0x4 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+
+.text           0x080001a0     0x4c98
+ *(.text*)
+ .text          0x080001a0        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .text.Reset_Handler
+                0x080001a0       0x30 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+                0x080001a0                Reset_Handler
+                0x080001b8                EXTI15_10_IRQHandler
+                0x080001be                DMA1_Stream6_IRQHandler
+                0x080001c4                USART2_IRQHandler
+                0x080001ca                TIM6_DAC_IRQHandler
+ .text          0x080001d0        0x0 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .text.HardFault_Handler
+                0x080001d0       0x14 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+                0x080001d0                HardFault_Handler
+ .text          0x080001e4       0x5c CMakeFiles/stm32.elf.dir/src/main.c.obj
+                0x080001e4                main
+ .text          0x08000240       0x5c CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+                0x08000240                runtime_init
+ .text          0x0800029c       0x10 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+                0x0800029c                HardFault_Handler_C
+                0x080002a6                Default_Handler
+ .text          0x080002ac      0x1c0 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+                0x080002ac                GPIO_EnableClock
+                0x080002e8                GPIO_SetMode
+                0x08000350                GPIO_ReadPin
+                0x0800037a                GPIO_WritePin
+                0x080003bc                GPIO_SetPull
+                0x08000424                GPIO_ToggleOutputPin
+ .text          0x0800046c     0x2820 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+                0x080004e4                xTaskCreate
+                0x08000760                vTaskDelete
+                0x08000868                xTaskDelayUntil
+                0x08000964                vTaskDelay
+                0x080009cc                vTaskSuspend
+                0x08000b60                vTaskResume
+                0x08000c70                xTaskResumeFromISR
+                0x08000e48                vTaskStartScheduler
+                0x08000ec4                vTaskEndScheduler
+                0x08000f1c                vTaskSuspendAll
+                0x08000f38                xTaskResumeAll
+                0x08001148                xTaskGetTickCount
+                0x08001168                xTaskGetTickCountFromISR
+                0x0800118c                uxTaskGetNumberOfTasks
+                0x080011a4                pcTaskGetName
+                0x080011ec                xTaskCatchUpTicks
+                0x08001244                xTaskIncrementTick
+                0x08001478                vTaskSwitchContext
+                0x08001534                vTaskPlaceOnEventList
+                0x0800157c                vTaskPlaceOnUnorderedEventList
+                0x08001628                xTaskRemoveFromEventList
+                0x080017dc                vTaskRemoveFromUnorderedEventList
+                0x08001964                vTaskSetTimeOutState
+                0x080019b0                vTaskInternalSetTimeOutState
+                0x080019dc                xTaskCheckForTimeOut
+                0x08001aa8                vTaskMissedYield
+                0x08001c24                xTaskGetCurrentTaskHandle
+                0x08001c44                xTaskGetCurrentTaskHandleForCore
+                0x08001c74                xTaskGetSchedulerState
+                0x08001cb0                xTaskPriorityInherit
+                0x08001dd4                xTaskPriorityDisinherit
+                0x08001f04                vTaskPriorityDisinheritAfterTimeout
+                0x0800205c                uxTaskResetEventItemValue
+                0x0800208c                pvTaskIncrementMutexHeldCount
+                0x080020bc                ulTaskGenericNotifyTake
+                0x080021b8                xTaskGenericNotifyWait
+                0x080022e4                xTaskGenericNotify
+                0x0800253c                xTaskGenericNotifyFromISR
+                0x08002808                vTaskGenericNotifyGiveFromISR
+                0x08002a1c                xTaskGenericNotifyStateClear
+                0x08002a90                ulTaskGenericNotifyValueClear
+                0x08002bec                vTaskResetState
+ .text          0x08002c8c     0x1290 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+                0x08002c8c                xQueueGenericReset
+                0x08002dac                xQueueGenericCreate
+                0x08002eba                xQueueCreateMutex
+                0x08002eea                xQueueGenericSend
+                0x080030e8                xQueueGenericSendFromISR
+                0x0800324c                xQueueGiveFromISR
+                0x08003394                xQueueReceive
+                0x08003554                xQueueSemaphoreTake
+                0x08003750                xQueuePeek
+                0x08003914                xQueueReceiveFromISR
+                0x08003a42                xQueuePeekFromISR
+                0x08003b14                uxQueueMessagesWaiting
+                0x08003b50                uxQueueSpacesAvailable
+                0x08003b96                uxQueueMessagesWaitingFromISR
+                0x08003bd2                vQueueDelete
+                0x08003c08                uxQueueGetQueueItemSize
+                0x08003c20                uxQueueGetQueueLength
+                0x08003e58                xQueueIsQueueEmptyFromISR
+                0x08003ed0                xQueueIsQueueFullFromISR
+ .text          0x08003f1c      0x168 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+                0x08003f1c                vListInitialise
+                0x08003f5c                vListInitialiseItem
+                0x08003f76                vListInsertEnd
+                0x08003fbe                vListInsert
+                0x08004030                uxListRemove
+ *fill*         0x08004084        0xc 
+ .text          0x08004090      0x544 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+                0x08004090                pxPortInitialiseStack
+                0x08004150                SVC_Handler
+                0x0800419e                xPortStartScheduler
+                0x08004370                vPortEndScheduler
+                0x080043a8                vPortEnterCritical
+                0x08004408                vPortExitCritical
+                0x0800445c                PendSV_Handler
+                0x080044c6                SysTick_Handler
+                0x0800450c                vPortSetupTimerInterrupt
+                0x08004556                vPortValidateInterruptPriority
+ .text          0x080045d4      0x68c CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+                0x080045d4                pvPortMalloc
+                0x0800482c                vPortFree
+                0x0800491c                xPortGetFreeHeapSize
+                0x08004934                xPortGetMinimumEverFreeHeapSize
+                0x0800494c                vPortInitialiseBlocks
+                0x0800495a                pvPortCalloc
+                0x08004b64                vPortGetHeapStats
+                0x08004c20                vPortHeapResetState
+ .text          0x08004c60      0x134 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memcpy.o)
+                0x08004c60                memcpy
+ .text          0x08004d94        0x0 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+ .text.memset   0x08004d94       0xa4 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+                0x08004d94                memset
+
+.glue_7         0x08004e38        0x0
+ .glue_7        0x08004e38        0x0 linker stubs
+
+.glue_7t        0x08004e38        0x0
+ .glue_7t       0x08004e38        0x0 linker stubs
+
+.vfp11_veneer   0x08004e38        0x0
+ .vfp11_veneer  0x08004e38        0x0 linker stubs
+
+.v4_bx          0x08004e38        0x0
+ .v4_bx         0x08004e38        0x0 linker stubs
+
+.iplt           0x08004e38        0x0
+ .iplt          0x08004e38        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+
+.rel.dyn        0x08004e38        0x0
+ .rel.iplt      0x08004e38        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+
+.data           0x20000000        0x8 load address 0x08004e38
+                0x20000000                _sdata = .
+ *(.data*)
+ .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .data          0x20000000        0x4 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .data          0x20000004        0x0 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .data          0x20000004        0x0 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .data          0x20000004        0x4 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .data          0x20000008        0x0 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+ .data          0x20000008        0x0 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memcpy.o)
+ .data          0x20000008        0x0 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+                0x20000008                _edata = .
+                0x08004e38                _sidata = LOADADDR (.data)
+
+.igot.plt       0x20000008        0x0 load address 0x08004e40
+ .igot.plt      0x20000008        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+
+.bss            0x20000008     0x4128 load address 0x08004e40
+                0x20000008                _sbss = .
+ *(.bss*)
+ .bss           0x20000008        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .bss           0x20000008        0x0 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .bss           0x20000008        0x0 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .bss           0x20000008        0x0 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .bss           0x20000008        0x0 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .bss           0x20000008        0x0 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .bss           0x20000008      0x104 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+                0x20000008                pxCurrentTCB
+ .bss           0x2000010c        0x0 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .bss           0x2000010c        0x0 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .bss           0x2000010c        0x8 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .bss           0x20000114     0x401c CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+ .bss           0x20004130        0x0 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memcpy.o)
+ .bss           0x20004130        0x0 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+ *(COMMON)
+                0x20004130                _ebss = .
+OUTPUT(stm32.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x00000000       0x35
+ .ARM.attributes
+                0x00000000       0x25 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .ARM.attributes
+                0x00000025       0x25 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .ARM.attributes
+                0x0000004a       0x34 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .ARM.attributes
+                0x0000007e       0x34 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .ARM.attributes
+                0x000000b2       0x34 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .ARM.attributes
+                0x000000e6       0x34 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .ARM.attributes
+                0x0000011a       0x34 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .ARM.attributes
+                0x0000014e       0x34 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .ARM.attributes
+                0x00000182       0x34 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .ARM.attributes
+                0x000001b6       0x34 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .ARM.attributes
+                0x000001ea       0x34 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+ .ARM.attributes
+                0x0000021e       0x1c g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memcpy.o)
+ .ARM.attributes
+                0x0000023a       0x34 g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+
+.comment        0x00000000       0x49
+ .comment       0x00000000       0x49 CMakeFiles/stm32.elf.dir/src/main.c.obj
+                                 0x4a (size before relaxing)
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+
+.debug_line     0x00000000     0x34b8
+ .debug_line    0x00000000       0x58 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .debug_line    0x00000058       0x48 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .debug_line    0x000000a0      0x1d2 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .debug_line    0x00000272       0xe4 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .debug_line    0x00000356       0xc5 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .debug_line    0x0000041b      0x221 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .debug_line    0x0000063c     0x1432 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .debug_line    0x00001a6e      0xda6 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .debug_line    0x00002814      0x29c CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .debug_line    0x00002ab0      0x438 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .debug_line    0x00002ee8      0x5d0 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+
+.debug_info     0x00000000     0x4b6a
+ .debug_info    0x00000000       0x26 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .debug_info    0x00000026       0x26 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .debug_info    0x0000004c      0x1a9 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .debug_info    0x000001f5       0xef CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .debug_info    0x000002e4      0x12e CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .debug_info    0x00000412      0x502 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .debug_info    0x00000914     0x2084 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .debug_info    0x00002998     0x13fb CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .debug_info    0x00003d93      0x2bc CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .debug_info    0x0000404f      0x571 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .debug_info    0x000045c0      0x5aa CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+
+.debug_abbrev   0x00000000      0xd7a
+ .debug_abbrev  0x00000000       0x14 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .debug_abbrev  0x00000014       0x14 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .debug_abbrev  0x00000028       0xfa CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .debug_abbrev  0x00000122       0x82 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .debug_abbrev  0x000001a4       0xa9 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .debug_abbrev  0x0000024d      0x13e CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .debug_abbrev  0x0000038b      0x2ea CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .debug_abbrev  0x00000675      0x223 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .debug_abbrev  0x00000898       0xe8 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .debug_abbrev  0x00000980      0x208 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .debug_abbrev  0x00000b88      0x1f2 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+
+.debug_aranges  0x00000000      0x160
+ .debug_aranges
+                0x00000000       0x20 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .debug_aranges
+                0x00000020       0x20 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .debug_aranges
+                0x00000040       0x20 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .debug_aranges
+                0x00000060       0x20 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .debug_aranges
+                0x00000080       0x20 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .debug_aranges
+                0x000000a0       0x20 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .debug_aranges
+                0x000000c0       0x20 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .debug_aranges
+                0x000000e0       0x20 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .debug_aranges
+                0x00000100       0x20 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .debug_aranges
+                0x00000120       0x20 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .debug_aranges
+                0x00000140       0x20 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+
+.debug_str      0x00000000     0x1ce4
+ .debug_str     0x00000000       0x5d CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .debug_str     0x0000005d       0x14 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+                                 0x5c (size before relaxing)
+ .debug_str     0x00000071      0x190 CMakeFiles/stm32.elf.dir/src/main.c.obj
+                                0x203 (size before relaxing)
+ .debug_str     0x00000201       0x41 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+                                0x19b (size before relaxing)
+ .debug_str     0x00000242       0x52 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+                                0x1ac (size before relaxing)
+ .debug_str     0x00000294      0x1f1 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+                                0x3b0 (size before relaxing)
+ .debug_str     0x00000485      0xd18 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+                                0xedb (size before relaxing)
+ .debug_str     0x0000119d      0x4d1 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+                                0x844 (size before relaxing)
+ .debug_str     0x0000166e       0xe2 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+                                0x2ff (size before relaxing)
+ .debug_str     0x00001750      0x261 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+                                0x469 (size before relaxing)
+ .debug_str     0x000019b1      0x333 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+                                0x4f3 (size before relaxing)
+
+.debug_frame    0x00000000     0x1188
+ .debug_frame   0x00000000       0x50 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .debug_frame   0x00000050       0x30 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .debug_frame   0x00000080       0x44 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .debug_frame   0x000000c4      0x100 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .debug_frame   0x000001c4      0x7ac CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj
+ .debug_frame   0x00000970      0x3f8 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj
+ .debug_frame   0x00000d68       0xd8 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj
+ .debug_frame   0x00000e40      0x1a8 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj
+ .debug_frame   0x00000fe8      0x174 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+ .debug_frame   0x0000115c       0x2c g:/software/compilers/gcc_arm/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard\libg.a(lib_a-memset.o)
+
+.debug_ranges   0x00000000       0x20
+ .debug_ranges  0x00000000       0x20 CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj

@@ -1,0 +1,3 @@
+F:/projects/comp_sci/embedded/phase1/cmsis_project1/build/CMakeFiles/stm32.elf.dir
+F:/projects/comp_sci/embedded/phase1/cmsis_project1/build/CMakeFiles/edit_cache.dir
+F:/projects/comp_sci/embedded/phase1/cmsis_project1/build/CMakeFiles/rebuild_cache.dir
