@@ -128,13 +128,22 @@ Reset_Handler:
 .thumb_set NMI_Handler, Default_Handler
 
 .weak SVC_Handler
-.thumb_set SVC_Handler, Default_Handler
+.type SVC_Handler, %function
+SVC_Handler:
+    bl Default_Handler
+    b .
 
 .weak PendSV_Handler
-.thumb_set PendSV_Handler, Default_Handler
+.type PendSV_Handler, %function
+PendSV_Handler:
+    bl Default_Handler
+    b .
 
 .weak SysTick_Handler
-.thumb_set SysTick_Handler, Default_Handler
+.type SysTick_Handler, %function
+SysTick_Handler:
+    bl Default_Handler
+    b .
 
 .weak EXTI0_IRQHandler
 .thumb_set EXTI0_IRQHandler, Default_Handler

@@ -37,106 +37,110 @@ END GROUP
 .rodata         0x08000188       0x13
  .rodata        0x08000188       0x13 CMakeFiles/stm32.elf.dir/src/main.c.obj
 
-.text           0x0800019c     0x16d4
+.text           0x0800019c     0x16e8
  *(.text*)
  .text          0x0800019c        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
  .text.Reset_Handler
-                0x0800019c       0x18 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+                0x0800019c       0x2a CMakeFiles/stm32.elf.dir/startup/startup.s.obj
                 0x0800019c                Reset_Handler
-                0x080001a8                DMA1_Stream6_IRQHandler
- .text          0x080001b4        0x0 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+                0x080001a2                SVC_Handler
+                0x080001a8                PendSV_Handler
+                0x080001ae                SysTick_Handler
+                0x080001ba                DMA1_Stream6_IRQHandler
+ .text          0x080001c6        0x0 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
  .text.HardFault_Handler
-                0x080001b4       0x14 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
-                0x080001b4                HardFault_Handler
- .text          0x080001c8      0x110 CMakeFiles/stm32.elf.dir/src/main.c.obj
-                0x08000234                main
- .text          0x080002d8       0x60 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
-                0x080002d8                runtime_init
- .text          0x08000338       0x40 CMakeFiles/stm32.elf.dir/core/system.c.obj
-                0x08000338                NVIC_SystemReset
-                0x0800035c                SystemInit
- .text          0x08000378       0x10 CMakeFiles/stm32.elf.dir/core/faults.c.obj
-                0x08000378                HardFault_Handler_C
-                0x08000382                Default_Handler
- .text          0x08000388      0x130 CMakeFiles/stm32.elf.dir/core/nvic.c.obj
-                0x08000388                NVIC_EnableIRQ
-                0x080003bc                NVIC_DisableIRQ
-                0x080003f0                NVIC_SetPendingIRQ
-                0x08000424                NVIC_ClearPendingIRQ
-                0x08000458                NVIC_SetPriority
-                0x08000488                NVIC_GPIOPinToIRQ
- .text          0x080004b8      0x1b0 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
-                0x080004b8                GPIO_EnableClock
-                0x080004f0                GPIO_SetMode
-                0x08000556                GPIO_ReadPin
-                0x0800057e                GPIO_WritePin
-                0x080005be                GPIO_SetPull
-                0x08000624                GPIO_ToggleOutputPin
- .text          0x08000668      0x9bc CMakeFiles/stm32.elf.dir/drivers/uart.c.obj
-                0x08000b72                UART_GetHandle
-                0x08000bc4                UART_Init
-                0x08000c74                UART_WriteByte
-                0x08000cf0                UART_Write
-                0x08000d48                UART_WriteString
-                0x08000d94                UART_WriteUint
-                0x08000e34                UART_RxAvailable
-                0x08000e6c                UART_ReadByte
-                0x08000eca                UART_IRQHandler
-                0x08000f14                UART_Read_Byte
-                0x08000f2c                UART_AttachTxDMA
-                0x08000f78                UART_TransmitDMA
- .text          0x08001024      0x320 CMakeFiles/stm32.elf.dir/drivers/dma.c.obj
-                0x080010c4                DMA_InitMemToPeriphTx
-                0x08001150                DMA_StartTx
-                0x080011f0                DMA_Abort
-                0x0800124a                DMA_IRQHandler
- .text          0x08001344       0x90 CMakeFiles/stm32.elf.dir/drivers/syscfg.c.obj
-                0x08001344                SYSCFG_EnableClock
-                0x08001360                SYSCFG_SetEXTISource
- .text          0x080013d4       0xac CMakeFiles/stm32.elf.dir/drivers/exti.c.obj
-                0x080013d4                EXTI_EnableInterrupt
-                0x08001400                EXTI_SetFallingEdge
-                0x0800142c                EXTI_IsPending
-                0x0800145c                EXTI_ClearPending
- .text          0x08001480      0x388 CMakeFiles/stm32.elf.dir/drivers/timer.c.obj
-                0x08001480                TIM_Init
-                0x080014d8                TIM_Start
-                0x080014f6                TIM_Stop
-                0x08001514                TIM_SetPrescaler
-                0x08001532                TIM_SetAutoReload
-                0x08001550                TIM_EnableUpdateInterrupt
-                0x0800156e                TIM_DisableUpdateInterrupt
-                0x0800158c                TIM_IsUpdateEvent
-                0x080015b0                TIM_ClearUpdateFlag
-                0x080015ca                TIM_GenerateUpdateEvent
-                0x080015e8                TIM_EnableClock
-                0x080016e4                TIM_DisableClock
-                0x080017c8                TIM_EventSet
-                0x080017e0                TIM_EventGet
- .text          0x08001808       0x68 CMakeFiles/stm32.elf.dir/isr/isr.c.obj
-                0x08001808                EXTI15_10_IRQHandler
-                0x08001838                USART2_IRQHandler
-                0x0800184c                TIM6_DAC_IRQHandler
+                0x080001c6       0x14 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+                0x080001c6                HardFault_Handler
+ *fill*         0x080001da        0x2 
+ .text          0x080001dc      0x110 CMakeFiles/stm32.elf.dir/src/main.c.obj
+                0x08000248                main
+ .text          0x080002ec       0x60 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+                0x080002ec                runtime_init
+ .text          0x0800034c       0x40 CMakeFiles/stm32.elf.dir/core/system.c.obj
+                0x0800034c                NVIC_SystemReset
+                0x08000370                SystemInit
+ .text          0x0800038c       0x10 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+                0x0800038c                HardFault_Handler_C
+                0x08000396                Default_Handler
+ .text          0x0800039c      0x130 CMakeFiles/stm32.elf.dir/core/nvic.c.obj
+                0x0800039c                NVIC_EnableIRQ
+                0x080003d0                NVIC_DisableIRQ
+                0x08000404                NVIC_SetPendingIRQ
+                0x08000438                NVIC_ClearPendingIRQ
+                0x0800046c                NVIC_SetPriority
+                0x0800049c                NVIC_GPIOPinToIRQ
+ .text          0x080004cc      0x1b0 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+                0x080004cc                GPIO_EnableClock
+                0x08000504                GPIO_SetMode
+                0x0800056a                GPIO_ReadPin
+                0x08000592                GPIO_WritePin
+                0x080005d2                GPIO_SetPull
+                0x08000638                GPIO_ToggleOutputPin
+ .text          0x0800067c      0x9bc CMakeFiles/stm32.elf.dir/drivers/uart.c.obj
+                0x08000b86                UART_GetHandle
+                0x08000bd8                UART_Init
+                0x08000c88                UART_WriteByte
+                0x08000d04                UART_Write
+                0x08000d5c                UART_WriteString
+                0x08000da8                UART_WriteUint
+                0x08000e48                UART_RxAvailable
+                0x08000e80                UART_ReadByte
+                0x08000ede                UART_IRQHandler
+                0x08000f28                UART_Read_Byte
+                0x08000f40                UART_AttachTxDMA
+                0x08000f8c                UART_TransmitDMA
+ .text          0x08001038      0x320 CMakeFiles/stm32.elf.dir/drivers/dma.c.obj
+                0x080010d8                DMA_InitMemToPeriphTx
+                0x08001164                DMA_StartTx
+                0x08001204                DMA_Abort
+                0x0800125e                DMA_IRQHandler
+ .text          0x08001358       0x90 CMakeFiles/stm32.elf.dir/drivers/syscfg.c.obj
+                0x08001358                SYSCFG_EnableClock
+                0x08001374                SYSCFG_SetEXTISource
+ .text          0x080013e8       0xac CMakeFiles/stm32.elf.dir/drivers/exti.c.obj
+                0x080013e8                EXTI_EnableInterrupt
+                0x08001414                EXTI_SetFallingEdge
+                0x08001440                EXTI_IsPending
+                0x08001470                EXTI_ClearPending
+ .text          0x08001494      0x388 CMakeFiles/stm32.elf.dir/drivers/timer.c.obj
+                0x08001494                TIM_Init
+                0x080014ec                TIM_Start
+                0x0800150a                TIM_Stop
+                0x08001528                TIM_SetPrescaler
+                0x08001546                TIM_SetAutoReload
+                0x08001564                TIM_EnableUpdateInterrupt
+                0x08001582                TIM_DisableUpdateInterrupt
+                0x080015a0                TIM_IsUpdateEvent
+                0x080015c4                TIM_ClearUpdateFlag
+                0x080015de                TIM_GenerateUpdateEvent
+                0x080015fc                TIM_EnableClock
+                0x080016f8                TIM_DisableClock
+                0x080017dc                TIM_EventSet
+                0x080017f4                TIM_EventGet
+ .text          0x0800181c       0x68 CMakeFiles/stm32.elf.dir/isr/isr.c.obj
+                0x0800181c                EXTI15_10_IRQHandler
+                0x0800184c                USART2_IRQHandler
+                0x08001860                TIM6_DAC_IRQHandler
 
-.glue_7         0x08001870        0x0
- .glue_7        0x08001870        0x0 linker stubs
+.glue_7         0x08001884        0x0
+ .glue_7        0x08001884        0x0 linker stubs
 
-.glue_7t        0x08001870        0x0
- .glue_7t       0x08001870        0x0 linker stubs
+.glue_7t        0x08001884        0x0
+ .glue_7t       0x08001884        0x0 linker stubs
 
-.vfp11_veneer   0x08001870        0x0
- .vfp11_veneer  0x08001870        0x0 linker stubs
+.vfp11_veneer   0x08001884        0x0
+ .vfp11_veneer  0x08001884        0x0 linker stubs
 
-.v4_bx          0x08001870        0x0
- .v4_bx         0x08001870        0x0 linker stubs
+.v4_bx          0x08001884        0x0
+ .v4_bx         0x08001884        0x0 linker stubs
 
-.iplt           0x08001870        0x0
- .iplt          0x08001870        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+.iplt           0x08001884        0x0
+ .iplt          0x08001884        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
 
-.rel.dyn        0x08001870        0x0
- .rel.iplt      0x08001870        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+.rel.dyn        0x08001884        0x0
+ .rel.iplt      0x08001884        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
 
-.data           0x20000000        0x0 load address 0x08001870
+.data           0x20000000        0x0 load address 0x08001884
                 0x20000000                _sdata = .
  *(.data*)
  .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
@@ -154,12 +158,12 @@ END GROUP
  .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/drivers/timer.c.obj
  .data          0x20000000        0x0 CMakeFiles/stm32.elf.dir/isr/isr.c.obj
                 0x20000000                _edata = .
-                0x08001870                _sidata = LOADADDR (.data)
+                0x08001884                _sidata = LOADADDR (.data)
 
-.igot.plt       0x20000000        0x0 load address 0x08001870
+.igot.plt       0x20000000        0x0 load address 0x08001884
  .igot.plt      0x20000000        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
 
-.bss            0x20000000      0x135 load address 0x08001870
+.bss            0x20000000      0x135 load address 0x08001884
                 0x20000000                _sbss = .
  *(.bss*)
  .bss           0x20000000        0x0 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
@@ -227,21 +231,21 @@ LOAD linker stubs
  .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/drivers/timer.c.obj
  .comment       0x00000049       0x4a CMakeFiles/stm32.elf.dir/isr/isr.c.obj
 
-.debug_line     0x00000000     0x1480
- .debug_line    0x00000000       0x4e CMakeFiles/stm32.elf.dir/startup/startup.s.obj
- .debug_line    0x0000004e       0x48 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
- .debug_line    0x00000096      0x137 CMakeFiles/stm32.elf.dir/src/main.c.obj
- .debug_line    0x000001cd       0xe7 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
- .debug_line    0x000002b4       0xd3 CMakeFiles/stm32.elf.dir/core/system.c.obj
- .debug_line    0x00000387       0xc5 CMakeFiles/stm32.elf.dir/core/faults.c.obj
- .debug_line    0x0000044c      0x130 CMakeFiles/stm32.elf.dir/core/nvic.c.obj
- .debug_line    0x0000057c      0x1c2 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
- .debug_line    0x0000073e      0x5a3 CMakeFiles/stm32.elf.dir/drivers/uart.c.obj
- .debug_line    0x00000ce1      0x28f CMakeFiles/stm32.elf.dir/drivers/dma.c.obj
- .debug_line    0x00000f70       0xe2 CMakeFiles/stm32.elf.dir/drivers/syscfg.c.obj
- .debug_line    0x00001052       0xf9 CMakeFiles/stm32.elf.dir/drivers/exti.c.obj
- .debug_line    0x0000114b      0x22b CMakeFiles/stm32.elf.dir/drivers/timer.c.obj
- .debug_line    0x00001376      0x10a CMakeFiles/stm32.elf.dir/isr/isr.c.obj
+.debug_line     0x00000000     0x1488
+ .debug_line    0x00000000       0x56 CMakeFiles/stm32.elf.dir/startup/startup.s.obj
+ .debug_line    0x00000056       0x48 CMakeFiles/stm32.elf.dir/startup/faults.s.obj
+ .debug_line    0x0000009e      0x137 CMakeFiles/stm32.elf.dir/src/main.c.obj
+ .debug_line    0x000001d5       0xe7 CMakeFiles/stm32.elf.dir/core/runtime.c.obj
+ .debug_line    0x000002bc       0xd3 CMakeFiles/stm32.elf.dir/core/system.c.obj
+ .debug_line    0x0000038f       0xc5 CMakeFiles/stm32.elf.dir/core/faults.c.obj
+ .debug_line    0x00000454      0x130 CMakeFiles/stm32.elf.dir/core/nvic.c.obj
+ .debug_line    0x00000584      0x1c2 CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj
+ .debug_line    0x00000746      0x5a3 CMakeFiles/stm32.elf.dir/drivers/uart.c.obj
+ .debug_line    0x00000ce9      0x28f CMakeFiles/stm32.elf.dir/drivers/dma.c.obj
+ .debug_line    0x00000f78       0xe2 CMakeFiles/stm32.elf.dir/drivers/syscfg.c.obj
+ .debug_line    0x0000105a       0xf9 CMakeFiles/stm32.elf.dir/drivers/exti.c.obj
+ .debug_line    0x00001153      0x22b CMakeFiles/stm32.elf.dir/drivers/timer.c.obj
+ .debug_line    0x0000137e      0x10a CMakeFiles/stm32.elf.dir/isr/isr.c.obj
 
 .debug_info     0x00000000     0x2abe
  .debug_info    0x00000000       0x26 CMakeFiles/stm32.elf.dir/startup/startup.s.obj

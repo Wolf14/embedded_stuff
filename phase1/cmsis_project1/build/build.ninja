@@ -86,6 +86,86 @@ build CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj: C_COMPILER__stm32.2eelf_ ../d
   OBJECT_DIR = CMakeFiles\stm32.elf.dir
   OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\drivers
 
+build CMakeFiles/stm32.elf.dir/drivers/timer.c.obj: C_COMPILER__stm32.2eelf_ ../drivers/timer.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\drivers\timer.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\drivers
+
+build CMakeFiles/stm32.elf.dir/drivers/dma.c.obj: C_COMPILER__stm32.2eelf_ ../drivers/dma.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\drivers\dma.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\drivers
+
+build CMakeFiles/stm32.elf.dir/drivers/uart.c.obj: C_COMPILER__stm32.2eelf_ ../drivers/uart.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\drivers\uart.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\drivers
+
+build CMakeFiles/stm32.elf.dir/motion/stepper.c.obj: C_COMPILER__stm32.2eelf_ ../motion/stepper.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\motion\stepper.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\motion
+
+build CMakeFiles/stm32.elf.dir/rtos/app_tasks.c.obj: C_COMPILER__stm32.2eelf_ ../rtos/app_tasks.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\rtos\app_tasks.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\rtos
+
+build CMakeFiles/stm32.elf.dir/rtos/motion_task.c.obj: C_COMPILER__stm32.2eelf_ ../rtos/motion_task.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\rtos\motion_task.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\rtos
+
+build CMakeFiles/stm32.elf.dir/rtos/monitor_task.c.obj: C_COMPILER__stm32.2eelf_ ../rtos/monitor_task.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\rtos\monitor_task.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\rtos
+
+build CMakeFiles/stm32.elf.dir/rtos/console_task.c.obj: C_COMPILER__stm32.2eelf_ ../rtos/console_task.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\rtos\console_task.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\rtos
+
+build CMakeFiles/stm32.elf.dir/bsp/console.c.obj: C_COMPILER__stm32.2eelf_ ../bsp/console.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\bsp\console.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\bsp
+
+build CMakeFiles/stm32.elf.dir/isr/isr.c.obj: C_COMPILER__stm32.2eelf_ ../isr/isr.c || cmake_object_order_depends_target_stm32.elf
+  DEFINES = -DSTM32F446xx
+  DEP_FILE = CMakeFiles\stm32.elf.dir\isr\isr.c.obj.d
+  FLAGS = -mcpu=cortex-m4 -mthumb -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffreestanding -fno-builtin
+  INCLUDES = -I../ -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Include -IF:/projects/comp_sci/embedded/libraries/STM32CubeF4-master/Drivers/CMSIS/Device/ST/STM32F4xx/Include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/include -IF:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F -I../config
+  OBJECT_DIR = CMakeFiles\stm32.elf.dir
+  OBJECT_FILE_DIR = CMakeFiles\stm32.elf.dir\isr
+
 build CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj: C_COMPILER__stm32.2eelf_ F$:/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c || cmake_object_order_depends_target_stm32.elf
   DEFINES = -DSTM32F446xx
   DEP_FILE = CMakeFiles\stm32.elf.dir\F_\projects\comp_sci\embedded\libraries\FreeRTOS-LTS\FreeRTOS\FreeRTOS-Kernel\tasks.c.obj.d
@@ -134,7 +214,7 @@ build CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-
 #############################################
 # Link the executable stm32.elf
 
-build stm32.elf: C_EXECUTABLE_LINKER__stm32.2eelf_ CMakeFiles/stm32.elf.dir/startup/startup.s.obj CMakeFiles/stm32.elf.dir/startup/faults.s.obj CMakeFiles/stm32.elf.dir/src/main.c.obj CMakeFiles/stm32.elf.dir/core/runtime.c.obj CMakeFiles/stm32.elf.dir/core/faults.c.obj CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
+build stm32.elf: C_EXECUTABLE_LINKER__stm32.2eelf_ CMakeFiles/stm32.elf.dir/startup/startup.s.obj CMakeFiles/stm32.elf.dir/startup/faults.s.obj CMakeFiles/stm32.elf.dir/src/main.c.obj CMakeFiles/stm32.elf.dir/core/runtime.c.obj CMakeFiles/stm32.elf.dir/core/faults.c.obj CMakeFiles/stm32.elf.dir/drivers/gpio.c.obj CMakeFiles/stm32.elf.dir/drivers/timer.c.obj CMakeFiles/stm32.elf.dir/drivers/dma.c.obj CMakeFiles/stm32.elf.dir/drivers/uart.c.obj CMakeFiles/stm32.elf.dir/motion/stepper.c.obj CMakeFiles/stm32.elf.dir/rtos/app_tasks.c.obj CMakeFiles/stm32.elf.dir/rtos/motion_task.c.obj CMakeFiles/stm32.elf.dir/rtos/monitor_task.c.obj CMakeFiles/stm32.elf.dir/rtos/console_task.c.obj CMakeFiles/stm32.elf.dir/bsp/console.c.obj CMakeFiles/stm32.elf.dir/isr/isr.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/tasks.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/queue.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/list.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c.obj CMakeFiles/stm32.elf.dir/F_/projects/comp_sci/embedded/libraries/FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/portable/MemMang/heap_4.c.obj
   FLAGS = -mcpu=cortex-m4 -mthumb -g -O0
   LINK_FLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -TF:/projects/comp_sci/embedded/phase1/cmsis_project1/linker.ld -nostartfiles -Wl,-Map=stm32.map
   OBJECT_DIR = CMakeFiles\stm32.elf.dir

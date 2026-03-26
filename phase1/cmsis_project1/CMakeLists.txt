@@ -12,6 +12,16 @@ add_executable(stm32.elf
     core/runtime.c
     core/faults.c
     drivers/gpio.c
+    drivers/timer.c
+    drivers/dma.c
+    drivers/uart.c
+    motion/stepper.c
+    rtos/app_tasks.c
+    rtos/motion_task.c
+    rtos/monitor_task.c
+    rtos/console_task.c
+    bsp/console.c
+    isr/isr.c
 
 )
 

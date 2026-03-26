@@ -69,7 +69,7 @@ static bool UART_RxBufferFull(const UART_Handle_t *huart)
     return (UART_NextIndex(huart->rx_head, UART_RX_BUFFER_SIZE) == huart->rx_tail);
 }
 
-static int UART_InstanceToIndex(UART_TypeDef *uart)
+static int UART_InstanceToIndex(USART_TypeDef *uart)
 {
     if (uart == USART1) return 0;
     if (uart == USART2) return 1;
@@ -163,7 +163,7 @@ static void UART_HandleTx(UART_Handle_t *huart)
 
 
 
-static void UART_EnableClock(UART_TypeDef *uart)
+static void UART_EnableClock(USART_TypeDef *uart)
 {
     if (uart == USART2){
         RCC->APB1ENR |= (1 << 17);
@@ -182,8 +182,8 @@ static void UART_GPIO_Init_UART(uint8_t pin){
     GPIOA->MODER &= ~(3 << (pin * 2));
     GPIOA->MODER |= (2 << (pin * 2));
 
-    GPIOA->AFRL &= ~(0xF << (pin * 4));
-    GPIOA->AFRL |= (7 << (pin * 4));         /* As the pin is mapped to AF7 according the reference manual*/
+    GPIOA->AFR[0] &= ~(0xF << (pin * 4));
+    GPIOA->AFR[0] |= (7 << (pin * 4));         /* As the pin is mapped to AF7 according the reference manual*/
 
     GPIOA->OSPEEDR |= (3 << (pin * 2));
 }
@@ -246,7 +246,7 @@ static void UART_OnDmaEvent(void *context, DMA_Event_t event)
 
 /* ============= GetHandle ===================*/
 
-UART_Handle_t* UART_GetHandle(UART_TypeDef *uart){
+UART_Handle_t* UART_GetHandle(USART_TypeDef *uart){
     for(int i = 0; i < UART_MAX_INSTANCES; i++){
         if(uart_handle_table[i] && uart_handle_table[i]->instance == uart){
             return uart_handle_table[i];
@@ -259,7 +259,7 @@ UART_Handle_t* UART_GetHandle(UART_TypeDef *uart){
 /* ================= INIT ================= */
 
 /* Assumes USAR2 as enabling GPIO pins 2 and 3 only*/
-void UART_Init(UART_Handle_t *huart, UART_TypeDef *instance, uint32_t baud)
+void UART_Init(UART_Handle_t *huart, USART_TypeDef *instance, uint32_t baud)
 {
     UART_EnableClock(instance);
     if ((huart == NULL) || (instance == NULL) || (baud == 0U))
@@ -431,7 +431,7 @@ UART_Status_t UART_ReadByte(UART_Handle_t *huart, uint8_t *out)
 
 
 /* As of now code assumes that USART2 is being used and hence GPIOA->AF7, need to make this more generalistic*/
-void UART_IRQHandler(UART_TypeDef *instance)
+void UART_IRQHandler(USART_TypeDef *instance)
 {
     UART_Handle_t *huart = UART_GetHandle(instance);
     if ((huart == NULL) || (instance == NULL))
@@ -454,12 +454,12 @@ void UART_IRQHandler(UART_TypeDef *instance)
     }
 }
 
-//char UART_ReadChar(UART_TypeDef *uart){
+//char UART_ReadChar(USART_TypeDef *uart){
 //    while (!(uart->SR & (1 << 5)));
 //    return uart->DR;
 //}
 
-uint8_t UART_Read_Byte(UART_TypeDef *uart)
+uint8_t UART_Read_Byte(USART_TypeDef *uart)
 {
     /* Reading RDR clears RXNE on most STM32 families */
     return (uint8_t)(uart->DR & 0xFFU);

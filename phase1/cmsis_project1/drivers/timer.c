@@ -2,17 +2,17 @@
 
 /* ===== Bit Definitions ===== */
 
-#define TIM_CR1_CEN        (1U << 0)
-#define TIM_CR1_UDIS       (1U << 1)
-#define TIM_CR1_URS        (1U << 2)
-#define TIM_CR1_OPM        (1U << 3)
-#define TIM_CR1_ARPE       (1U << 7)
+//#define TIM_CR1_CEN        (1U << 0)
+//#define TIM_CR1_UDIS       (1U << 1)
+//#define TIM_CR1_URS        (1U << 2)
+//#define TIM_CR1_OPM        (1U << 3)
+//#define TIM_CR1_ARPE       (1U << 7)
 
-#define TIM_DIER_UIE       (1U << 0)
+//#define TIM_DIER_UIE       (1U << 0)
 
-#define TIM_SR_UIF         (1U << 0)
+//#define TIM_SR_UIF         (1U << 0)
 
-#define TIM_EGR_UG         (1U << 0)
+//#define TIM_EGR_UG         (1U << 0)
 
 /* ===== PRIVATE EVENT FLAG ===== */
 

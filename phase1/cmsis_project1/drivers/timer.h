@@ -3,41 +3,41 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "include/device.h"
+#include "stm32f4xx.h"
 
 /* ================= REGISTER STRUCT ================= */
 
-typedef struct
-{
-    volatile uint32_t CR1;
-    volatile uint32_t CR2;
-    volatile uint32_t RESERVED1;         // 0x18
-    volatile uint32_t DIER;
-    volatile uint32_t SR;
-    volatile uint32_t EGR;
-    volatile uint32_t RESERVED2;         // 0x18
-    volatile uint32_t RESERVED3;         // 0x1C
-    volatile uint32_t RESERVED4;         // 0x18
-    volatile uint32_t CNT;
-    volatile uint32_t PSC;
-    volatile uint32_t ARR;
-} TIM_TypeDef;
+//typedef struct
+//{
+//    volatile uint32_t CR1;
+//    volatile uint32_t CR2;
+//    volatile uint32_t RESERVED1;         // 0x18
+//    volatile uint32_t DIER;
+//    volatile uint32_t SR;
+//    volatile uint32_t EGR;
+//    volatile uint32_t RESERVED2;         // 0x18
+//    volatile uint32_t RESERVED3;         // 0x1C
+//    volatile uint32_t RESERVED4;         // 0x18
+//    volatile uint32_t CNT;
+//    volatile uint32_t PSC;
+//    volatile uint32_t ARR;
+//} TIM_TypeDef;
 
 
 /* ================= TIMER INSTANCES ================= */
 /* Timer base addresses (example STM32F4 style) */
 
-#define TIM1_BASE   0x40010000UL
-#define TIM2_BASE   0x40000000UL
-#define TIM3_BASE   0x40000400UL
-#define TIM4_BASE   0x40000800UL
-#define TIM5_BASE   0x40000C00UL
-#define TIM6_BASE   0x40001000UL
-#define TIM7_BASE   0x40001400UL
-#define TIM8_BASE   0x40010400UL
-
-#define TIM6    ((TIM_TypeDef*)TIM6_BASE)
-#define TIM7    ((TIM_TypeDef*)TIM7_BASE)
+//#define TIM1_BASE   0x40010000UL
+//#define TIM2_BASE   0x40000000UL
+//#define TIM3_BASE   0x40000400UL
+//#define TIM4_BASE   0x40000800UL
+//#define TIM5_BASE   0x40000C00UL
+//#define TIM6_BASE   0x40001000UL
+//#define TIM7_BASE   0x40001400UL
+//#define TIM8_BASE   0x40010400UL
+//
+//#define TIM6    ((TIM_TypeDef*)TIM6_BASE)
+//#define TIM7    ((TIM_TypeDef*)TIM7_BASE)
 
 
 /* ================= CONFIG STRUCT ================= */

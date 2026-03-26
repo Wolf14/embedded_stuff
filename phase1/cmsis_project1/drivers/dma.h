@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "stm32f4xx.h"
 
 /* -------- Generic register qualifiers -------- */
 #ifndef __IO
@@ -10,23 +11,23 @@
 #endif
 
 /* -------- Minimal classic STM32 DMA register layout -------- */
-typedef struct
-{
-    __IO uint32_t CR;
-    __IO uint32_t NDTR;
-    __IO uint32_t PAR;
-    __IO uint32_t M0AR;
-    __IO uint32_t M1AR;
-    __IO uint32_t FCR;
-} DMA_Stream_TypeDef;
-
-typedef struct
-{
-    __IO uint32_t LISR;
-    __IO uint32_t HISR;
-    __IO uint32_t LIFCR;
-    __IO uint32_t HIFCR;
-} DMA_TypeDef;
+//typedef struct
+//{
+//    __IO uint32_t CR;
+//    __IO uint32_t NDTR;
+//    __IO uint32_t PAR;
+//    __IO uint32_t M0AR;
+//    __IO uint32_t M1AR;
+//    __IO uint32_t FCR;
+//} DMA_Stream_TypeDef;
+//
+//typedef struct
+//{
+//    __IO uint32_t LISR;
+//    __IO uint32_t HISR;
+//    __IO uint32_t LIFCR;
+//    __IO uint32_t HIFCR;
+//} DMA_TypeDef;
 
 /* -------- Callback status -------- */
 typedef enum
@@ -58,21 +59,21 @@ typedef struct
 
 
 
-#define DMA1_BASE            0x40026000UL
-#define DMA2_BASE            0x40026400UL
-
-#define DMA1 ((DMA_TypeDef *)DMA1_BASE)
-#define DMA2 ((DMA_TypeDef *)DMA2_BASE)
-
-
-#define DMA1_Stream0 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x10U))
-#define DMA1_Stream1 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x28U))
-#define DMA1_Stream2 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x40U))
-#define DMA1_Stream3 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x58U))
-#define DMA1_Stream4 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x70U))
-#define DMA1_Stream5 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x88U))
-#define DMA1_Stream6 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0xA0U))
-#define DMA1_Stream7 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0xB8U))
+//#define DMA1_BASE            0x40026000UL
+//#define DMA2_BASE            0x40026400UL
+//
+//#define DMA1 ((DMA_TypeDef *)DMA1_BASE)
+//#define DMA2 ((DMA_TypeDef *)DMA2_BASE)
+//
+//
+//#define DMA1_Stream0 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x10U))
+//#define DMA1_Stream1 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x28U))
+//#define DMA1_Stream2 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x40U))
+//#define DMA1_Stream3 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x58U))
+//#define DMA1_Stream4 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x70U))
+//#define DMA1_Stream5 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0x88U))
+//#define DMA1_Stream6 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0xA0U))
+//#define DMA1_Stream7 ((DMA_Stream_TypeDef *)(DMA1_BASE + 0xB8U))
 
 /* -------- API -------- */
 void DMA_InitMemToPeriphTx(DMA_Handle_t *hdma);

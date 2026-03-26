@@ -1,28 +1,28 @@
 #include "dma.h"
-#include "include/device.h"
+#include "stm32f4xx.h"
 
 /* -------- CR bit definitions (classic STM32 stream DMA style) -------- */
-#define DMA_SxCR_EN            (1U << 0)
-#define DMA_SxCR_DMEIE         (1U << 1)
-#define DMA_SxCR_TEIE          (1U << 2)
-#define DMA_SxCR_TCIE          (1U << 4)
+//#define DMA_SxCR_EN            (1U << 0)
+//#define DMA_SxCR_DMEIE         (1U << 1)
+//#define DMA_SxCR_TEIE          (1U << 2)
+//#define DMA_SxCR_TCIE          (1U << 4)
 
-#define DMA_SxCR_DIR_Pos       6U
+//#define DMA_SxCR_DIR_Pos       6U
 #define DMA_SxCR_DIR_M2P       (1U << DMA_SxCR_DIR_Pos)
 
-#define DMA_SxCR_CIRC          (1U << 8)
-#define DMA_SxCR_PINC          (1U << 9)
-#define DMA_SxCR_MINC          (1U << 10)
+//#define DMA_SxCR_CIRC          (1U << 8)
+//#define DMA_SxCR_PINC          (1U << 9)
+//#define DMA_SxCR_MINC          (1U << 10)
 
-#define DMA_SxCR_PSIZE_Pos     11U
-#define DMA_SxCR_MSIZE_Pos     13U
+//#define DMA_SxCR_PSIZE_Pos     11U
+//#define DMA_SxCR_MSIZE_Pos     13U
 
-#define DMA_SxCR_PL_Pos        16U
-#define DMA_SxCR_CHSEL_Pos     25U
+//#define DMA_SxCR_PL_Pos        16U
+//#define DMA_SxCR_CHSEL_Pos     25U
 
 /* FCR bits */
-#define DMA_SxFCR_DMDIS        (1U << 2)  /* 0 => direct mode enabled */
-#define DMA_SxFCR_FEIE         (1U << 7)
+//#define DMA_SxFCR_DMDIS        (1U << 2)  /* 0 => direct mode enabled */
+//#define DMA_SxFCR_FEIE         (1U << 7)
 
 /* Common 8-bit width values */
 #define DMA_PSIZE_8BIT         (0U << DMA_SxCR_PSIZE_Pos)

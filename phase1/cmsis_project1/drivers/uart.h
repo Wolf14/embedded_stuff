@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "include/device.h"
+#include "stm32f4xx.h"
 #include "drivers/dma.h"
 
 
@@ -20,29 +20,29 @@
 
 /* ================= REGISTER STRUCT ================= */
 
-typedef struct{
-    volatile uint32_t SR;
-    volatile uint32_t DR;
-    volatile uint32_t BRR;
-    volatile uint32_t CR1;
-    volatile uint32_t CR2;
-    volatile uint32_t CR3;
-    volatile uint32_t GTPR;
-} UART_TypeDef;
+//typedef struct{
+//    volatile uint32_t SR;
+//    volatile uint32_t DR;
+//    volatile uint32_t BRR;
+//    volatile uint32_t CR1;
+//    volatile uint32_t CR2;
+//    volatile uint32_t CR3;
+//    volatile uint32_t GTPR;
+//} USART_TypeDef;
 
-#define USART1_BASE     0x40011000UL
-#define USART2_BASE     0x40004400UL
-#define USART3_BASE     0x40004800UL
-#define UART4_BASE      0x40004C00UL
-#define UART5_BASE      0x40005000UL
-#define USART6_BASE     0x40011400UL
+//#define USART1_BASE     0x40011000UL
+//#define USART2_BASE     0x40004400UL
+//#define USART3_BASE     0x40004800UL
+//#define UART4_BASE      0x40004C00UL
+//#define UART5_BASE      0x40005000UL
+//#define USART6_BASE     0x40011400UL
 
-#define USART1 ((UART_TypeDef *)USART1_BASE)
-#define USART2 ((UART_TypeDef *)USART2_BASE)
-#define USART3 ((UART_TypeDef *)USART3_BASE)
-#define UART4 ((UART_TypeDef *)UART4_BASE)
-#define UART5 ((UART_TypeDef *)UART5_BASE)
-#define USART6 ((UART_TypeDef *)USART6_BASE)
+//#define USART1 ((USART_TypeDef *)USART1_BASE)
+//#define USART2 ((USART_TypeDef *)USART2_BASE)
+//#define USART3 ((USART_TypeDef *)USART3_BASE)
+//#define UART4 ((USART_TypeDef *)UART4_BASE)
+//#define UART5 ((USART_TypeDef *)UART5_BASE)
+//#define USART6 ((USART_TypeDef *)USART6_BASE)
 
 /* ================= Status / Events ================= */
 
@@ -69,7 +69,7 @@ typedef void (*UART_EventCallback_t)(void *context, UART_Event_t event);
 
 typedef struct
 {
-    UART_TypeDef *instance;
+    USART_TypeDef *instance;
 
     volatile uint16_t tx_head;
     volatile uint16_t tx_tail;
@@ -100,10 +100,10 @@ typedef struct
 /* ================= Public API ================= */
 
 /* Core init: assumes board-level clock/GPIO setup is done separately */
-void UART_Init(UART_Handle_t *huart, UART_TypeDef *instance, uint32_t baud);
+void UART_Init(UART_Handle_t *huart, USART_TypeDef *instance, uint32_t baud);
 
 /* Optional board hook registration in internal lookup table */
-UART_Handle_t *UART_GetHandle(UART_TypeDef *instance);
+UART_Handle_t *UART_GetHandle(USART_TypeDef *instance);
 
 /* TX */
 UART_Status_t UART_WriteByte(UART_Handle_t *huart, uint8_t byte);
@@ -116,10 +116,10 @@ bool UART_RxAvailable(const UART_Handle_t *huart);
 UART_Status_t UART_ReadByte(UART_Handle_t *huart, uint8_t *out);
 
 //Old read functions:
-uint8_t UART_Read_Byte(UART_TypeDef *uart);
+uint8_t UART_Read_Byte(USART_TypeDef *uart);
 
 /* ISR entry */
-void UART_IRQHandler(UART_TypeDef *instance);
+void UART_IRQHandler(USART_TypeDef *instance);
 
 
 /* DMA TX API */
